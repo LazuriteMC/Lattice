@@ -3,13 +3,14 @@
   "id": "lattice",
   "version": "${version}",
   "name": "Lattice",
-  "description": "description",
+  "description": "A Fabric library mod that allows chunk generation and loading around the player's camera entity.",
   "authors": [
     "The Lazurite Team"
   ],
   "contact": {
-    "website": "site",
-    "repo": "repo"
+    "homepage": "https://lazurite.dev",
+    "sources": "https://github.com/LazuriteMC/Lattice",
+    "issues": "https://github.com/LazuriteMC/Lattice/issues"
   },
   "license": "MIT",
   "icon": "assets/lattice/icon.png",
