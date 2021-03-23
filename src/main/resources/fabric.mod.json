@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "lattice",
+  "version": "${version}",
+  "name": "Lattice",
+  "description": "description",
+  "authors": [
+    "The Lazurite Team"
+  ],
+  "contact": {
+    "website": "site",
+    "repo": "repo"
+  },
+  "license": "MIT",
+  "icon": "assets/lattice/icon.png",
+  "environment": "*",
+  "entrypoints": {
+  },
+  "mixins": [
+    "lattice.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "1.16.x"
+  }
+}
