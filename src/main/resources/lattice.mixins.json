@@ -4,14 +4,14 @@
   "package": "dev.lazurite.lattice.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "client.ClientChunkMapMixin",
-    "client.MinecraftClientMixin",
-    "client.WorldRendererMixin",
     "common.EntityTrackerMixin",
     "common.ServerPlayerEntityMixin",
     "common.ThreadedAnvilChunkStorageMixin"
   ],
   "client": [
+    "client.ClientChunkMapMixin",
+    "client.MinecraftClientMixin",
+    "client.WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
