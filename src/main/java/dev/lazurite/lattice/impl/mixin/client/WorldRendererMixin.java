@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.impl.mixin.client;
 
-import dev.lazurite.lattice.api.entity.RenderableEntity;
+import dev.lazurite.lattice.api.entity.Viewable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
@@ -249,14 +249,24 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
     @Redirect(
             method = "render",
             at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/Camera;isThirdPerson()Z"
+            )
+    )
+    public boolean render_isThirdPerson(Camera camera) {
+        return camera.isThirdPerson() || (camera.getFocusedEntity() instanceof Viewable && !((Viewable) camera.getFocusedEntity()).shouldRenderSelf());
+    }
+
+    @Redirect(
+            method = "render",
+            at = @At(
                     value = "CONSTANT",
                     args = "classValue=net/minecraft/client/network/ClientPlayerEntity"
             )
     )
     public boolean render_instanceof(Object entity, Class<?> clazz,
                                      MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera) {
-        return clazz.isInstance(entity) && camera.getFocusedEntity() instanceof RenderableEntity && !((RenderableEntity) camera.getFocusedEntity()).shouldRenderPlayer();
-        /*!entity.equals(camera.getFocusedEntity()) &&*/
+        return clazz.isInstance(entity) && camera.getFocusedEntity() instanceof Viewable && !((Viewable) camera.getFocusedEntity()).shouldRenderPlayer();
     }
 
 }
