@@ -254,7 +254,7 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
             )
     )
     public boolean render_isThirdPerson(Camera camera) {
-        return camera.isThirdPerson() || (camera.getFocusedEntity() instanceof Viewable && !((Viewable) camera.getFocusedEntity()).shouldRenderSelf());
+        return camera.isThirdPerson() || (camera.getFocusedEntity() instanceof Viewable && ((Viewable) camera.getFocusedEntity()).shouldRenderSelf());
     }
 
     @Redirect(
