@@ -6,6 +6,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "common.EntityTrackerMixin",
+    "common.PlayerManagerMixin",
     "common.ServerPlayerEntityMixin",
     "common.ThreadedAnvilChunkStorageMixin"
   ],

@@ -7,7 +7,6 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.SynchronousResourceReloadListener;
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,34 +18,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class WorldRendererMixin implements SynchronousResourceReloadListener, AutoCloseable {
 
     @Shadow @Final private MinecraftClient client;
-
-    @Shadow public abstract void processGlobalEvent(int eventId, BlockPos pos, int i);
-
-    private void test() {
-        /*
-
-        // original
-
-        do {
-            do {
-                do {
-
-                } while(!this.entityRenderDispatcher.shouldRender(entity, frustum2, d, e, f) && !entity.hasPassengerDeep(this.client.player));
-            } while(entity == camera.getFocusedEntity() && !camera.isThirdPerson() && (!(camera.getFocusedEntity() instanceof LivingEntity) || !((LivingEntity)camera.getFocusedEntity()).isSleeping()));
-        } while(entity instanceof ClientPlayerEntity && camera.getFocusedEntity() != entity);
-
-        // desired
-
-        do {
-            do {
-                do {
-
-                } while(!this.entityRenderDispatcher.shouldRender(entity, frustum2, d, e, f) && !entity.hasPassengerDeep(this.client.player));
-            } while(entity == camera.getFocusedEntity() && !camera.isThirdPerson() && (!(camera.getFocusedEntity() instanceof LivingEntity) || !((LivingEntity)camera.getFocusedEntity()).isSleeping()));
-        } while(entity instanceof ClientPlayerEntity && (camera.getFocusedEntity() != entity || camera.getFocusedEntity() instanceof RenderableEntity &&  ((RenderableEntity) camera.getFocusedEntity()).shouldRenderPlayer());
-
-        */
-    }
 
     @Unique
     private double getSafeCameraEntityPosX() {
