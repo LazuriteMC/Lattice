@@ -10,7 +10,6 @@ import net.minecraft.resource.SynchronousResourceReloadListener;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -19,35 +18,7 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
 
     @Shadow @Final private MinecraftClient client;
 
-    @Unique
-    private double getSafeCameraEntityPosX() {
-        return this.client.getCameraEntity() != null ? this.client.getCameraEntity().getX() : this.client.player.getX();
-    }
-
-    @Unique
-    private double getSafeCameraEntityPosY() {
-        return this.client.getCameraEntity() != null ? this.client.getCameraEntity().getY() : this.client.player.getY();
-    }
-
-    @Unique
-    private double getSafeCameraEntityPosZ() {
-        return this.client.getCameraEntity() != null ? this.client.getCameraEntity().getZ() : this.client.player.getZ();
-    }
-
-    @Unique
-    private int getSafeCameraChunkPosX() {
-        return this.client.getCameraEntity() != null ? this.client.getCameraEntity().chunkX : this.client.player.chunkX;
-    }
-
-    @Unique
-    private int getSafeCameraChunkPosY() {
-        return this.client.getCameraEntity() != null ? this.client.getCameraEntity().chunkY : this.client.player.chunkY;
-    }
-
-    @Unique
-    private int getSafeCameraChunkPosZ() {
-        return this.client.getCameraEntity() != null ? this.client.getCameraEntity().chunkZ : this.client.player.chunkZ;
-    }
+    // region setupTerrain
 
     @Redirect(
             method = "setupTerrain",
@@ -57,8 +28,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 0
             )
     )
-    private double setupTerrain_getX0(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosX();
+    private double setupTerrain_getX0(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getX();
     }
 
     @Redirect(
@@ -69,8 +40,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 0
             )
     )
-    private double setupTerrain_getY0(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosY();
+    private double setupTerrain_getY0(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getY();
     }
 
     @Redirect(
@@ -81,8 +52,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 0
             )
     )
-    private double setupTerrain_getZ0(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosZ();
+    private double setupTerrain_getZ0(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getZ();
     }
 
     @Redirect(
@@ -93,8 +64,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 0
             )
     )
-    private int setupTerrain_chunkX0(ClientPlayerEntity ignored) {
-        return this.getSafeCameraChunkPosX();
+    private int setupTerrain_chunkX0(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().chunkX;
     }
 
     @Redirect(
@@ -105,8 +76,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 0
             )
     )
-    private int setupTerrain_chunkY0(ClientPlayerEntity ignored) {
-        return this.getSafeCameraChunkPosY();
+    private int setupTerrain_chunkY0(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().chunkY;
     }
 
     @Redirect(
@@ -117,8 +88,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 0
             )
     )
-    private int setupTerrain_chunkZ0(ClientPlayerEntity ignored) {
-        return this.getSafeCameraChunkPosZ();
+    private int setupTerrain_chunkZ0(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().chunkZ;
     }
 
     @Redirect(
@@ -129,8 +100,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 1
             )
     )
-    private double setupTerrain_getX1(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosX();
+    private double setupTerrain_getX1(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getX();
     }
 
     @Redirect(
@@ -141,8 +112,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 1
             )
     )
-    private double setupTerrain_getY1(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosY();
+    private double setupTerrain_getY1(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getY();
     }
 
     @Redirect(
@@ -153,8 +124,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 1
             )
     )
-    private double setupTerrain_getZ1(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosZ();
+    private double setupTerrain_getZ1(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getZ();
     }
 
     @Redirect(
@@ -165,8 +136,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 1
             )
     )
-    private int setupTerrain_chunkX1(ClientPlayerEntity ignored) {
-        return this.getSafeCameraChunkPosX();
+    private int setupTerrain_chunkX1(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().chunkX;
     }
 
     @Redirect(
@@ -177,8 +148,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 1
             )
     )
-    private int setupTerrain_chunkY1(ClientPlayerEntity ignored) {
-        return this.getSafeCameraChunkPosY();
+    private int setupTerrain_chunkY1(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().chunkY;
     }
 
     @Redirect(
@@ -189,8 +160,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 1
             )
     )
-    private int setupTerrain_chunkZ1(ClientPlayerEntity ignored) {
-        return this.getSafeCameraChunkPosZ();
+    private int setupTerrain_chunkZ1(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().chunkZ;
     }
 
     @Redirect(
@@ -201,8 +172,8 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 2
             )
     )
-    private double setupTerrain_getX2(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosX();
+    private double setupTerrain_getX2(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getX();
     }
 
     @Redirect(
@@ -213,9 +184,13 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     ordinal = 2
             )
     )
-    private double setupTerrain_getZ2(ClientPlayerEntity ignored) {
-        return this.getSafeCameraEntityPosZ();
+    private double setupTerrain_getZ2(ClientPlayerEntity player) {
+        return this.client.getCameraEntity().getZ();
     }
+
+    // endregion setupTerrain
+
+    // region render
 
     @Redirect(
             method = "render",
@@ -239,5 +214,7 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                                      MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera) {
         return clazz.isInstance(entity) && camera.getFocusedEntity() instanceof Viewable && !((Viewable) camera.getFocusedEntity()).shouldRenderPlayer();
     }
+
+    // endregion render
 
 }

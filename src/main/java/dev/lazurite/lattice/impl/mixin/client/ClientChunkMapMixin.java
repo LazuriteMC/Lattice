@@ -1,8 +1,6 @@
 package dev.lazurite.lattice.impl.mixin.client;
 
 import dev.lazurite.lattice.impl.client.IClientChunkMap;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.world.chunk.WorldChunk;
@@ -14,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Environment(EnvType.CLIENT)
 @Mixin(targets = "net/minecraft/client/world/ClientChunkManager$ClientChunkMap")
 public abstract class ClientChunkMapMixin implements IClientChunkMap {
     @Unique private WorldChunk playerChunk;
