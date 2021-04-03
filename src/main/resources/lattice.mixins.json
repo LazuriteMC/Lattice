@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.lazurite.lattice.impl.mixin",
-  "plugin": "dev.lazurite.lattice.impl.mixin.plugin.LatticeMixinConfigPlugin",
+  "plugin": "dev.lazurite.lattice.impl.mixin.LatticeMixinConfigPlugin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "common.EntityTrackerMixin",
@@ -11,6 +11,7 @@
     "common.ThreadedAnvilChunkStorageMixin"
   ],
   "client": [
+    "client.access.IClientChunkMapMixin",
     "client.ClientChunkMapMixin",
     "client.MinecraftClientMixin",
     "client.WorldRendererMixin"

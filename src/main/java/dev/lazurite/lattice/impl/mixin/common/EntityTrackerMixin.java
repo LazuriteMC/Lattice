@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(targets = "net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker")
 public abstract class EntityTrackerMixin {
 
+    // TODO track entities around player as well
+
     @Redirect(
             method = "updateCameraPosition(Lnet/minecraft/server/network/ServerPlayerEntity;)V",
             at = @At(

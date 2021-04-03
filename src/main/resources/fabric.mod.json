@@ -17,6 +17,7 @@
   "environment": "*",
   "entrypoints": {
   },
+  "accessWidener": "lattice.accesswidener",
   "mixins": [
     "lattice.mixins.json"
   ],
