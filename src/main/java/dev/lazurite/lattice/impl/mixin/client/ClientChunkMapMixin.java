@@ -1,11 +1,14 @@
 package dev.lazurite.lattice.impl.mixin.client;
 
-import dev.lazurite.lattice.impl.client.IClientChunkMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -13,16 +16,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ClientChunkMapMixin {
 
     @Shadow @Final private int radius;
+    @Shadow @Final private int diameter;
 
-    @Redirect(
+    @Unique
+    private boolean isInPlayerRadius(int chunkX, int chunkZ) {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        return Math.abs(chunkX - (MathHelper.floor(player.getX()) >> 4)) <= this.radius && Math.abs(chunkZ - (MathHelper.floor(player.getZ()) >> 4)) <= this.radius;
+    }
+
+    @ModifyArg(
             method = "<init>",
             at = @At(
-                    value = "FIELD",
-                    ordinal = 2
+                    value = "INVOKE",
+                    target = "Ljava/util/concurrent/atomic/AtomicReferenceArray;<init>(I)V"
             )
     )
-    public void init_FIELD(@Coerce IClientChunkMap clientChunkMap, int diameter) {
-        clientChunkMap.setDiameter(diameter * 2);
+    private int init_init(int diameterSquared) {
+        return diameterSquared * 2;
+    }
+
+    @Inject(
+            method = "getIndex",
+            at = @At("RETURN"),
+            cancellable = true
+    )
+    private void getIndex_RETURN(int chunkX, int chunkZ, CallbackInfoReturnable<Integer> cir) {
+        if (!this.isInPlayerRadius(chunkX, chunkZ)) {
+            cir.setReturnValue(cir.getReturnValue() + this.diameter * this.diameter);
+        }
     }
 
     @Inject(
@@ -30,9 +51,8 @@ public abstract class ClientChunkMapMixin {
             at = @At("RETURN"),
             cancellable = true
     )
-    private void isInRadius(int chunkX, int chunkZ, CallbackInfoReturnable<Boolean> cir) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        cir.setReturnValue(cir.getReturnValue() || Math.abs(chunkX - player.chunkX) <= this.radius && Math.abs(chunkZ - player.chunkZ) <= this.radius);
+    private void isInRadius_RETURN(int chunkX, int chunkZ, CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(cir.getReturnValue() || this.isInPlayerRadius(chunkX, chunkZ));
     }
 
 }
