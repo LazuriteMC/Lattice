@@ -8,13 +8,11 @@ import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.storage.VersionedChunkStorage;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.io.File;
 import java.util.LinkedHashSet;
@@ -22,14 +20,13 @@ import java.util.LinkedHashSet;
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStorage implements ChunkHolder.PlayersWatchingChunkProvider {
 
-    @Unique private int cameraChunkSectionPosX;
-    @Unique private int cameraCHunkSectionPosZ;
+    @Unique private ChunkSectionPos currPlayerPos;
+    @Unique private ChunkSectionPos prevPlayerPos;
 
-    @Unique private ChunkSectionPos currentPlayerChunkSectionPos;
-    @Unique private ChunkSectionPos prevPlayerChunkSectionPos;
+    @Unique private ChunkSectionPos currCamPos;
+    @Unique private ChunkSectionPos prevCamPos;
 
-    @Unique private ChunkSectionPos currentCameraChunkSectionPos;
-    @Unique private ChunkSectionPos prevCameraChunkSectionPos;
+    @Unique private LinkedHashSet<ChunkPos> chunks;
 
     @Unique private LinkedHashSet<ChunkPos> addedChunks;
     @Unique private LinkedHashSet<ChunkPos> persistentChunks;
@@ -101,7 +98,7 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             )
     )
     private int method_20726_getSectionX(ChunkSectionPos chunkSectionPos, ServerPlayerEntity serverPlayerEntity) {
-        return ((IServerPlayerEntity) serverPlayerEntity).getPrevCameraChunkSectionPos().getSectionX();
+        return ((IServerPlayerEntity) serverPlayerEntity).getPrevCameraChunkSectionPos().getX();
     }
 
     @Redirect(
@@ -112,49 +109,83 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             )
     )
     private int method_20726_getSectionZ(ChunkSectionPos chunkSectionPos, ServerPlayerEntity serverPlayerEntity) {
-        return ((IServerPlayerEntity) serverPlayerEntity).getPrevCameraChunkSectionPos().getSectionZ();
+        return ((IServerPlayerEntity) serverPlayerEntity).getPrevCameraChunkSectionPos().getZ();
     }
 
     // endregion method_20726
 
     // region handlePlayerAddedOrRemoved
 
-    /* should keep?
-
-    @Redirect(
+    @Inject(
             method = "handlePlayerAddedOrRemoved",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;getX()D"
-            )
+            at = @At("HEAD")
     )
-    double handlePlayerAddedOrRemoved_getX(ServerPlayerEntity player) {
-        return player.getCameraEntity().getX();
+    void handlePlayerAddedOrRemoved_HEAD(ServerPlayerEntity player, boolean added, CallbackInfo ci) {
+        this.currPlayerPos = ChunkSectionPos.from(player);
+        this.prevPlayerPos = player.getCameraPosition();
+
+        this.currCamPos = ChunkSectionPos.from(player.getCameraEntity());
+        this.prevCamPos = ((IServerPlayerEntity) player).getPrevCameraChunkSectionPos();
+
+        this.chunks = new LinkedHashSet<>();
     }
 
     @Redirect(
             method = "handlePlayerAddedOrRemoved",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;getZ()D"
+                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkEnter(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    double handlePlayerAddedOrRemoved_getZ(ServerPlayerEntity player) {
-        return player.getCameraEntity().getZ();
+    void handlePlayerAddedOrRemoved_handleChunkEnter(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
+        this.ticketManager.handleChunkEnter(pos, player);
+
+        if (!this.currCamPos.equals(pos)) {
+            this.ticketManager.handleChunkEnter(this.currCamPos, player);
+        }
     }
 
-    @ModifyArg(
+    @Redirect(
             method = "handlePlayerAddedOrRemoved",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/math/ChunkSectionPos;"
+                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkLeave(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    Entity handlePlayerAddedOrRemoved_from(Entity player) {
-        return ((ServerPlayerEntity) player).getCameraEntity();
+    void handlePlayerAddedOrRemoved_handleChunkLeave(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
+        this.ticketManager.handleChunkLeave(pos, player);
+
+        if (!this.prevCamPos.equals(pos)) {
+            this.ticketManager.handleChunkLeave(this.prevCamPos, player);
+        }
     }
 
-    */
+    @Redirect(
+            method = "handlePlayerAddedOrRemoved",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;sendWatchPackets(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/util/math/ChunkPos;[Lnet/minecraft/network/Packet;ZZ)V"
+            )
+    )
+    void handlePlayerAddedOrRemoved_sendWatchPackets(ThreadedAnvilChunkStorage threadedAnvilChunkStorage, ServerPlayerEntity player, ChunkPos pos, Packet<?>[] packets, boolean withinMaxWatchDistance, boolean withinViewDistance) {
+        this.chunks.add(pos);
+    }
+
+    @Inject(
+            method = "handlePlayerAddedOrRemoved",
+            at = @At("TAIL")
+    )
+    void handlePlayerAddedOrRemoved_TAIL(ServerPlayerEntity player, boolean added, CallbackInfo ci) {
+        if (!this.currCamPos.equals(this.currPlayerPos)) {
+            for (int x = this.currCamPos.getX() - this.watchDistance; x <= this.currCamPos.getX() + this.watchDistance; ++x) {
+                for (int z = this.currCamPos.getZ() - this.watchDistance; z <= this.currCamPos.getZ() + this.watchDistance; ++z) {
+                    this.chunks.add(new ChunkPos(x, z));
+                }
+            }
+        }
+
+        this.chunks.forEach(chunkPos -> this.sendWatchPackets(player, chunkPos, new Packet[2], !added, added));
+    }
 
     // endregion handlePlayerAddedOrRemoved
 
@@ -165,14 +196,11 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             at = @At("HEAD")
     )
     public void updateCameraPosition_HEAD(ServerPlayerEntity player, CallbackInfo ci) {
-        this.cameraChunkSectionPosX = MathHelper.floor(player.getCameraEntity().getX()) >> 4;
-        this.cameraCHunkSectionPosZ = MathHelper.floor(player.getCameraEntity().getZ()) >> 4;
+        this.currPlayerPos = ChunkSectionPos.from(player);
+        this.prevPlayerPos = player.getCameraPosition();
 
-        this.currentPlayerChunkSectionPos = ChunkSectionPos.from(player);
-        this.prevPlayerChunkSectionPos = player.getCameraPosition();
-
-        this.currentCameraChunkSectionPos = ChunkSectionPos.from(player.getCameraEntity());
-        this.prevCameraChunkSectionPos = ((IServerPlayerEntity) player).getPrevCameraChunkSectionPos();
+        this.currCamPos = ChunkSectionPos.from(player.getCameraEntity());
+        this.prevCamPos = ((IServerPlayerEntity) player).getPrevCameraChunkSectionPos();
 
         this.addedChunks = new LinkedHashSet<>(); // false, true
         this.persistentChunks = new LinkedHashSet<>(); // true, true
@@ -190,7 +218,7 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             ordinal = 2
     )
     public boolean updateCameraPosition_LOAD(boolean bl3) {
-        return bl3 || this.prevCameraChunkSectionPos.asLong() != this.currentCameraChunkSectionPos.asLong();
+        return bl3 || this.prevCamPos.asLong() != this.currCamPos.asLong();
     }
 
     @Redirect(
@@ -201,12 +229,12 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             )
     )
     public void updateCameraPosition_handleChunkLeave(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
-        if (pos.asLong() != this.currentPlayerChunkSectionPos.asLong()) {
+        if (pos.asLong() != this.currPlayerPos.asLong()) { // bl3
             this.ticketManager.handleChunkLeave(pos, player);
         }
 
-        if (this.prevCameraChunkSectionPos.asLong() != this.currentCameraChunkSectionPos.asLong() && !(this.prevCameraChunkSectionPos.equals(pos))) {
-            this.ticketManager.handleChunkLeave(prevCameraChunkSectionPos, player);
+        if (this.prevCamPos.asLong() != this.currCamPos.asLong() && !this.prevCamPos.equals(pos)) {
+            this.ticketManager.handleChunkLeave(this.prevCamPos, player);
         }
     }
 
@@ -218,12 +246,12 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             )
     )
     public void updateCameraPosition_handleChunkEnter(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
-        if (pos.asLong() != this.prevPlayerChunkSectionPos.asLong()) {
+        if (pos.asLong() != this.prevPlayerPos.asLong()) { // bl3
             this.ticketManager.handleChunkEnter(pos, player);
         }
 
-        if (this.currentCameraChunkSectionPos.asLong() != this.prevCameraChunkSectionPos.asLong() && !(this.currentCameraChunkSectionPos.equals(pos))) {
-            this.ticketManager.handleChunkEnter(this.currentCameraChunkSectionPos, player);
+        if (this.currCamPos.asLong() != this.prevCamPos.asLong() && !this.currCamPos.equals(pos)) {
+            this.ticketManager.handleChunkEnter(this.currCamPos, player);
         }
     }
 
@@ -244,247 +272,49 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
         }
     }
 
-    // TODO clean up
-
     @Inject(
             method = "updateCameraPosition",
             at = @At("TAIL")
     )
     public void updateCameraPosition_TAIL(ServerPlayerEntity player, CallbackInfo ci) {
-        if (this.prevCameraChunkSectionPos.asLong() != this.currentCameraChunkSectionPos.asLong() && (!this.prevCameraChunkSectionPos.equals(this.prevPlayerChunkSectionPos) || !this.currentCameraChunkSectionPos.equals(this.currentPlayerChunkSectionPos))) {
-            int i = this.cameraChunkSectionPosX;
-            int j = this.cameraCHunkSectionPosZ;
-            int k = this.prevCameraChunkSectionPos.getSectionX();
-            int n = this.prevCameraChunkSectionPos.getSectionZ();
-            int w;
-            int x;
-            if (Math.abs(k - i) <= this.watchDistance * 2 && Math.abs(n - j) <= this.watchDistance * 2) {
-                w = Math.min(i, k) - this.watchDistance;
-                x = Math.min(j, n) - this.watchDistance;
-                int q = Math.max(i, k) + this.watchDistance;
-                int r = Math.max(j, n) + this.watchDistance;
+        if (!this.prevCamPos.equals(this.prevPlayerPos) || !this.currCamPos.equals(this.currPlayerPos)) {
+            if (Math.abs(this.prevCamPos.getX() - this.currCamPos.getX()) <= this.watchDistance * 2 && Math.abs(this.prevCamPos.getZ() - this.currCamPos.getZ()) <= this.watchDistance * 2) {
+                for (int x = Math.min(this.prevCamPos.getX(), this.currCamPos.getX()) - this.watchDistance; x <= Math.max(this.prevCamPos.getX(), this.currCamPos.getX() + this.watchDistance); ++x) {
+                    for (int z = Math.min(this.prevCamPos.getZ(), this.currCamPos.getZ()) - this.watchDistance; z <= Math.max(this.prevCamPos.getZ(), this.currCamPos.getZ()) + this.watchDistance; ++z) {
+                        ChunkPos chunkPos = new ChunkPos(x, z);
 
-                for(int s = w; s <= q; ++s) {
-                    for(int t = x; t <= r; ++t) {
-                        ChunkPos chunkPos = new ChunkPos(s, t);
-                        boolean bl4 = getChebyshevDistance(chunkPos, k, n) <= this.watchDistance;
-                        boolean bl5 = getChebyshevDistance(chunkPos, i, j) <= this.watchDistance;
-                        if (bl4 && bl5) {
+                        boolean withinMaxWatchDistance = getChebyshevDistance(chunkPos, this.prevCamPos.getX(), this.prevCamPos.getZ()) <= this.watchDistance;
+                        boolean withinViewDistance = getChebyshevDistance(chunkPos, this.currCamPos.getX(), this.currCamPos.getZ()) <= this.watchDistance;
+
+                        if (withinMaxWatchDistance && withinViewDistance) {
                             this.persistentChunks.add(chunkPos);
-                        } else if (!bl4 && bl5) {
+                        } else if (!withinMaxWatchDistance && withinViewDistance) {
                             this.addedChunks.add(chunkPos);
-                        } else if (bl4 && !bl5) {
+                        } else if (withinMaxWatchDistance) { // withinMaxWatchDistance && !withinViewDistance
                             this.removedChunks.add(chunkPos);
                         }
-//                        this.sendWatchPackets(player, chunkPos, new Packet[2], bl4, bl5);
                     }
                 }
             } else {
-                ChunkPos chunkPos3;
-                for(w = k - this.watchDistance; w <= k + this.watchDistance; ++w) {
-                    for(x = n - this.watchDistance; x <= n + this.watchDistance; ++x) {
-                        chunkPos3 = new ChunkPos(w, x);
-                        this.removedChunks.add(chunkPos3);
-//                        this.sendWatchPackets(player, chunkPos3, new Packet[2], true, false);
+                for (int x = this.prevCamPos.getX() - this.watchDistance; x <= this.prevCamPos.getX() + this.watchDistance; ++x) {
+                    for (int z = this.prevCamPos.getZ() - this.watchDistance; z <= this.prevCamPos.getZ() + this.watchDistance; ++z) {
+                        this.removedChunks.add(new ChunkPos(x, z));
                     }
                 }
 
-                for(w = i - this.watchDistance; w <= i + this.watchDistance; ++w) {
-                    for(x = j - this.watchDistance; x <= j + this.watchDistance; ++x) {
-                        chunkPos3 = new ChunkPos(w, x);
-                        this.addedChunks.add(chunkPos3);
-//                        this.sendWatchPackets(player, chunkPos3, new Packet[2], false, true);
+                for (int x = this.currCamPos.getX() - this.watchDistance; x <= this.currCamPos.getX() + this.watchDistance; ++x) {
+                    for (int z = this.currCamPos.getZ() - this.watchDistance; z <= this.currCamPos.getZ() + this.watchDistance; ++z) {
+                        this.addedChunks.add(new ChunkPos(x, z));
                     }
                 }
             }
 
-            removedChunks.removeIf(persistentChunks::contains);
+            this.removedChunks.removeIf(persistentChunks::contains);
         }
 
-        addedChunks.forEach(chunkPos -> this.sendWatchPackets(player, chunkPos, new Packet[2], false, true));
-        removedChunks.forEach(chunkPos -> this.sendWatchPackets(player, chunkPos, new Packet[2], true, false));
+        this.addedChunks.forEach(chunkPos -> this.sendWatchPackets(player, chunkPos, new Packet[2], false, true));
+        this.removedChunks.forEach(chunkPos -> this.sendWatchPackets(player, chunkPos, new Packet[2], true, false));
     }
-
-    /*
-    @Overwrite
-    public void updateCameraPosition(ServerPlayerEntity player) {
-        ObjectIterator<ThreadedAnvilChunkStorage.EntityTracker> var2 = this.entityTrackers.values().iterator();
-
-        while (var2.hasNext()) {
-            ThreadedAnvilChunkStorage.EntityTracker entityTracker = var2.next();
-            if (((IThreadedAnvilChunkStorage.IEntityTracker) entityTracker).getEntity() == player) {
-                entityTracker.updateCameraPosition(this.world.getPlayers());
-            } else {
-                entityTracker.updateCameraPosition(player);
-            }
-        }
-
-        int i = MathHelper.floor(player.getX()) >> 4;
-        int j = MathHelper.floor(player.getZ()) >> 4;
-
-        int i2 = MathHelper.floor(player.getCameraEntity().getX()) >> 4;
-        int j2 = MathHelper.floor(player.getCameraEntity().getZ()) >> 4;
-
-        ChunkSectionPos chunkSectionPos = player.getCameraPosition();
-        ChunkSectionPos chunkSectionPos2 = ChunkSectionPos.from(player);
-
-        ChunkSectionPos prevCameraChunkSectionPos = ((IServerPlayerEntity) player).getPrevCameraChunkSectionPos();
-        ChunkSectionPos currentCameraChunkSectionPos = ChunkSectionPos.from(player.getCameraEntity());
-
-        boolean bl = this.playerChunkWatchingManager.isWatchDisabled(player);
-        boolean bl2 = this.doesNotGenerateChunks(player);
-
-        boolean bl3 = chunkSectionPos.asLong() != chunkSectionPos2.asLong();
-
-        boolean cameraEntityMovedChunkSection = prevCameraChunkSectionPos.asLong() != currentCameraChunkSectionPos.asLong();
-
-        LinkedHashSet<ChunkPos> addedChunks = new LinkedHashSet<>((int) Math.ceil(Math.pow(this.watchDistance, 2) + 1), 1.0f); // false, true
-        LinkedHashSet<ChunkPos> removedChunks = new LinkedHashSet<>((int) Math.ceil(Math.pow(this.watchDistance, 2) + 1), 1.0f); // true, false
-
-        if (bl3 || cameraEntityMovedChunkSection || bl != bl2) { // <- Redirect
-            this.method_20726(player);
-
-            if (!bl) {
-
-                // Redirect
-
-                if (bl3) {
-                    this.ticketManager.handleChunkLeave(chunkSectionPos, player);
-                }
-
-                if (cameraEntityMovedChunkSection && !prevCameraChunkSectionPos.equals(chunkSectionPos)) {
-                    this.ticketManager.handleChunkLeave(prevCameraChunkSectionPos, player);
-                }
-            }
-
-            if (!bl2) {
-                // Redirect
-
-                if (bl3) {
-                    this.ticketManager.handleChunkEnter(chunkSectionPos2, player);
-                }
-
-                if (cameraEntityMovedChunkSection && !currentCameraChunkSectionPos.equals(chunkSectionPos2)) {
-                    this.ticketManager.handleChunkEnter(currentCameraChunkSectionPos, player);
-                }
-            }
-
-            if (!bl && bl2) {
-                this.playerChunkWatchingManager.disableWatch(player);
-            }
-
-            if (bl && !bl2) {
-                this.playerChunkWatchingManager.enableWatch(player);
-            }
-        }
-
-        if (true) {
-            int k = chunkSectionPos.getSectionX();
-            int n = chunkSectionPos.getSectionZ();
-            int w;
-            int x;
-            if (Math.abs(k - i) <= this.watchDistance * 2 && Math.abs(n - j) <= this.watchDistance * 2) {
-                w = Math.min(i, k) - this.watchDistance;
-                x = Math.min(j, n) - this.watchDistance;
-                int q = Math.max(i, k) + this.watchDistance;
-                int r = Math.max(j, n) + this.watchDistance;
-
-                for(int s = w; s <= q; ++s) {
-                    for(int t = x; t <= r; ++t) {
-                        ChunkPos chunkPos = new ChunkPos(s, t);
-                        boolean bl4 = getChebyshevDistance(chunkPos, k, n) <= this.watchDistance;
-                        boolean bl5 = getChebyshevDistance(chunkPos, i, j) <= this.watchDistance;
-
-                        // Redirect
-//                        this.sendWatchPackets(player, chunkPos, new Packet[2], bl4, bl5);
-
-                        if (!bl4 && bl5 || bl4 && bl5) {
-                            addedChunks.add(chunkPos);
-                        } else if (bl4 && !bl5) {
-                            removedChunks.add(chunkPos);
-                        }
-                    }
-                }
-            } else {
-                ChunkPos chunkPos3;
-                for(w = k - this.watchDistance; w <= k + this.watchDistance; ++w) {
-                    for(x = n - this.watchDistance; x <= n + this.watchDistance; ++x) {
-                        chunkPos3 = new ChunkPos(w, x);
-
-                        // Redirect
-//                        this.sendWatchPackets(player, chunkPos3, new Packet[2], true, false);
-
-                        removedChunks.add(chunkPos3);
-                    }
-                }
-
-                for(w = i - this.watchDistance; w <= i + this.watchDistance; ++w) {
-                    for(x = j - this.watchDistance; x <= j + this.watchDistance; ++x) {
-                        chunkPos3 = new ChunkPos(w, x);
-
-                        // Redirect
-//                            this.sendWatchPackets(player, chunkPos3, new Packet[2], false, true);
-
-                        addedChunks.add(chunkPos3);
-                    }
-                }
-            }
-        }
-
-        // Add
-        if (cameraEntityMovedChunkSection && (!prevCameraChunkSectionPos.equals(chunkSectionPos) || !currentCameraChunkSectionPos.equals(chunkSectionPos2))) {
-            int k = prevCameraChunkSectionPos.getSectionX();
-            int n = prevCameraChunkSectionPos.getSectionZ();
-            int w;
-            int x;
-            if (Math.abs(k - i2) <= this.watchDistance * 2 && Math.abs(n - j2) <= this.watchDistance * 2) {
-                w = Math.min(i2, k) - this.watchDistance;
-                x = Math.min(j2, n) - this.watchDistance;
-                int q = Math.max(i2, k) + this.watchDistance;
-                int r = Math.max(j2, n) + this.watchDistance;
-
-                for(int s = w; s <= q; ++s) {
-                    for(int t = x; t <= r; ++t) {
-                        ChunkPos chunkPos = new ChunkPos(s, t);
-                        boolean bl4 = getChebyshevDistance(chunkPos, k, n) <= this.watchDistance;
-                        boolean bl5 = getChebyshevDistance(chunkPos, i2, j2) <= this.watchDistance;
-                        if (!bl4 && bl5 || bl4 && bl5) {
-                            addedChunks.add(chunkPos);
-                        } else if (bl4 && !bl5) {
-                            removedChunks.add(chunkPos);
-                        }
-//                            this.sendWatchPackets(player, chunkPos, new Packet[2], bl4, bl5);
-                    }
-                }
-            } else {
-                ChunkPos chunkPos3;
-                for(w = k - this.watchDistance; w <= k + this.watchDistance; ++w) {
-                    for(x = n - this.watchDistance; x <= n + this.watchDistance; ++x) {
-                        chunkPos3 = new ChunkPos(w, x);
-                        removedChunks.add(chunkPos3);
-//                            this.sendWatchPackets(player, chunkPos3, new Packet[2], true, false);
-                    }
-                }
-
-                for(w = i2 - this.watchDistance; w <= i2 + this.watchDistance; ++w) {
-                    for(x = j2 - this.watchDistance; x <= j2 + this.watchDistance; ++x) {
-                        chunkPos3 = new ChunkPos(w, x);
-                        addedChunks.add(chunkPos3);
-//                            this.sendWatchPackets(player, chunkPos3, new Packet[2], false, true);
-                    }
-                }
-            }
-
-            removedChunks.removeIf(addedChunks::contains);
-        }
-
-        addedChunks.forEach(chunkPos -> this.sendWatchPackets(player, chunkPos, new Packet[2], false, true));
-        removedChunks.forEach(chunkPos -> this.sendWatchPackets(player, chunkPos, new Packet[2], true, false));
-
-    }
-
-    */
-
 
     // endregion updateCameraPosition
 
