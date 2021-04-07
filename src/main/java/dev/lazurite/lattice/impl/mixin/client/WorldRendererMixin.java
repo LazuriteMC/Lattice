@@ -24,11 +24,10 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
             method = "setupTerrain",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getX()D",
-                    ordinal = 0
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getX()D"
             )
     )
-    private double setupTerrain_getX0(ClientPlayerEntity player) {
+    private double setupTerrain_getX(ClientPlayerEntity player) {
         return this.client.getCameraEntity().getX();
     }
 
@@ -36,11 +35,10 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
             method = "setupTerrain",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getY()D",
-                    ordinal = 0
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getY()D"
             )
     )
-    private double setupTerrain_getY0(ClientPlayerEntity player) {
+    private double setupTerrain_getY(ClientPlayerEntity player) {
         return this.client.getCameraEntity().getY();
     }
 
@@ -48,11 +46,10 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
             method = "setupTerrain",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getZ()D",
-                    ordinal = 0
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getZ()D"
             )
     )
-    private double setupTerrain_getZ0(ClientPlayerEntity player) {
+    private double setupTerrain_getZ(ClientPlayerEntity player) {
         return this.client.getCameraEntity().getZ();
     }
 
@@ -60,11 +57,10 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
             method = "setupTerrain",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkX:I",
-                    ordinal = 0
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkX:I"
             )
     )
-    private int setupTerrain_chunkX0(ClientPlayerEntity player) {
+    private int setupTerrain_chunkX(ClientPlayerEntity player) {
         return this.client.getCameraEntity().chunkX;
     }
 
@@ -72,11 +68,10 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
             method = "setupTerrain",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkY:I",
-                    ordinal = 0
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkY:I"
             )
     )
-    private int setupTerrain_chunkY0(ClientPlayerEntity player) {
+    private int setupTerrain_chunkY(ClientPlayerEntity player) {
         return this.client.getCameraEntity().chunkY;
     }
 
@@ -84,108 +79,11 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
             method = "setupTerrain",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkZ:I",
-                    ordinal = 0
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkZ:I"
             )
     )
-    private int setupTerrain_chunkZ0(ClientPlayerEntity player) {
+    private int setupTerrain_chunkZ(ClientPlayerEntity player) {
         return this.client.getCameraEntity().chunkZ;
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getX()D",
-                    ordinal = 1
-            )
-    )
-    private double setupTerrain_getX1(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().getX();
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getY()D",
-                    ordinal = 1
-            )
-    )
-    private double setupTerrain_getY1(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().getY();
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getZ()D",
-                    ordinal = 1
-            )
-    )
-    private double setupTerrain_getZ1(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().getZ();
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkX:I",
-                    ordinal = 1
-            )
-    )
-    private int setupTerrain_chunkX1(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().chunkX;
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkY:I",
-                    ordinal = 1
-            )
-    )
-    private int setupTerrain_chunkY1(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().chunkY;
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;chunkZ:I",
-                    ordinal = 1
-            )
-    )
-    private int setupTerrain_chunkZ1(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().chunkZ;
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getX()D",
-                    ordinal = 2
-            )
-    )
-    private double setupTerrain_getX2(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().getX();
-    }
-
-    @Redirect(
-            method = "setupTerrain",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getZ()D",
-                    ordinal = 2
-            )
-    )
-    private double setupTerrain_getZ2(ClientPlayerEntity player) {
-        return this.client.getCameraEntity().getZ();
     }
 
     // endregion setupTerrain
