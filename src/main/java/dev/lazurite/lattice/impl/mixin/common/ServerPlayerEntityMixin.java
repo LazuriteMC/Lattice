@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ScreenHandlerListener, IServerPlayerEntity {
 
-    @Unique private ChunkSectionPos prevCameraChunkSectionPos = ChunkSectionPos.from(0, 0, 0);
+    @Unique private ChunkSectionPos prevCamPos = ChunkSectionPos.from(0, 0, 0);
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -24,14 +24,14 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sc
 
     @Unique
     @Override
-    public void setPrevCameraChunkSectionPos(ChunkSectionPos prevCameraChunkSectionPos) {
-        this.prevCameraChunkSectionPos = prevCameraChunkSectionPos;
+    public void setPrevCamPos(ChunkSectionPos prevCamPos) {
+        this.prevCamPos = prevCamPos;
     }
 
     @Unique
     @Override
-    public ChunkSectionPos getPrevCameraChunkSectionPos() {
-        return this.prevCameraChunkSectionPos;
+    public ChunkSectionPos getPrevCamPos() {
+        return this.prevCamPos;
     }
 
     @Redirect(

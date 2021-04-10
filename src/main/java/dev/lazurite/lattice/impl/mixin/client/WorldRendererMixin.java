@@ -101,6 +101,7 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
         return camera.isThirdPerson() || (camera.getFocusedEntity() instanceof Viewable && ((Viewable) camera.getFocusedEntity()).shouldRenderSelf());
     }
 
+    // Could also @Redirect camera.getFocusedEntity(), though there have been mod incompatibilities in doing so
     @Redirect(
             method = "render",
             at = @At(
@@ -108,8 +109,7 @@ public abstract class WorldRendererMixin implements SynchronousResourceReloadLis
                     args = "classValue=net/minecraft/client/network/ClientPlayerEntity"
             )
     )
-    public boolean render_instanceof(Object entity, Class<?> clazz,
-                                     MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera) {
+    public boolean render_instanceof(Object entity, Class<?> clazz, MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera) {
         return clazz.isInstance(entity) && camera.getFocusedEntity() instanceof Viewable && !((Viewable) camera.getFocusedEntity()).shouldRenderPlayer();
     }
 

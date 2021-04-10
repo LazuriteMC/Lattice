@@ -1,25 +1,51 @@
 package dev.lazurite.lattice.impl.mixin.common;
 
+import dev.lazurite.lattice.impl.common.util.ChebyshevDistance;
+import dev.lazurite.lattice.impl.mixin.common.access.IThreadedAnvilChunkStorageMixin;
+import net.minecraft.entity.Entity;
+import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.*;
 
 @Mixin(targets = "net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker")
 public abstract class EntityTrackerMixin {
 
-    // TODO track entities around player as well
+    @Shadow @Final ThreadedAnvilChunkStorage field_18245;
 
-    @Redirect(
+    @Shadow @Final private EntityTrackerEntry entry;
+    @Shadow protected abstract int getMaxTrackDistance();
+    @Shadow @Final private Entity entity;
+
+    @ModifyVariable(
             method = "updateCameraPosition(Lnet/minecraft/server/network/ServerPlayerEntity;)V",
             at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;getPos()Lnet/minecraft/util/math/Vec3d;"
-            )
+                    value = "STORE",
+                    ordinal = 0
+            ),
+            ordinal = 0
     )
-    public Vec3d getPos(ServerPlayerEntity player) {
-        return player.getCameraEntity().getPos();
+    public boolean updateCameraPosition_STORE0(boolean bl, ServerPlayerEntity player) {
+        Vec3d vec3d = player.getCameraEntity().getPos().subtract(this.entry.getLastPos());
+        int i = Math.min(this.getMaxTrackDistance(), (((IThreadedAnvilChunkStorageMixin) this.field_18245).getWatchDistance() - 1) * 16);
+        return bl || vec3d.x >= (double)(-i) && vec3d.x <= (double)i && vec3d.z >= (double)(-i) && vec3d.z <= (double)i && this.entity.canBeSpectated(player);
+    }
+
+    @ModifyVariable(
+            method = "updateCameraPosition(Lnet/minecraft/server/network/ServerPlayerEntity;)V",
+            at = @At(
+                    value = "STORE",
+                    ordinal = 1
+            ),
+            index = 5 // can't use ordinal (bug?)
+    )
+    public boolean updateCameraPosition_STORE1(boolean bl2, ServerPlayerEntity player) {
+        return bl2 || ChebyshevDistance.fromCameraEntity(new ChunkPos(this.entity.chunkX, this.entity.chunkZ), player, false) <= ((IThreadedAnvilChunkStorageMixin) this.field_18245).getWatchDistance();
     }
 
 }

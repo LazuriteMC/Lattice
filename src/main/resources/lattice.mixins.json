@@ -8,7 +8,8 @@
     "common.EntityTrackerMixin",
     "common.PlayerManagerMixin",
     "common.ServerPlayerEntityMixin",
-    "common.ThreadedAnvilChunkStorageMixin"
+    "common.ThreadedAnvilChunkStorageMixin",
+    "common.access.IThreadedAnvilChunkStorageMixin",
   ],
   "client": [
     "client.ClientChunkMapMixin",

@@ -2,8 +2,6 @@ package dev.lazurite.lattice.impl.mixin.client;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,8 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(targets = "net/minecraft/client/world/ClientChunkManager$ClientChunkMap")
 public abstract class ClientChunkMapMixin {
 
+    @Unique private int diameterSquared;
+
     @Shadow @Final private int radius;
-    @Shadow @Final private int diameter;
 
     @Unique
     private boolean isInPlayerRadius(int chunkX, int chunkZ) {
@@ -32,7 +31,8 @@ public abstract class ClientChunkMapMixin {
             )
     )
     private int init_init(int diameterSquared) {
-        return diameterSquared * 2;
+        this.diameterSquared = diameterSquared;
+        return this.diameterSquared * 2;
     }
 
     @Inject(
@@ -42,7 +42,7 @@ public abstract class ClientChunkMapMixin {
     )
     private void getIndex_RETURN(int chunkX, int chunkZ, CallbackInfoReturnable<Integer> cir) {
         if (!this.isInPlayerRadius(chunkX, chunkZ)) {
-            cir.setReturnValue(cir.getReturnValue() + this.diameter * this.diameter);
+            cir.setReturnValue(cir.getReturnValue() + this.diameterSquared);
         }
     }
 
