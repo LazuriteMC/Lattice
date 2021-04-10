@@ -1,7 +1,7 @@
 package dev.lazurite.lattice.impl.mixin.common;
 
 import com.mojang.authlib.GameProfile;
-import dev.lazurite.lattice.impl.common.IServerPlayerEntity;
+import dev.lazurite.lattice.impl.common.duck.IServerPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.server.network.ServerPlayerEntity;

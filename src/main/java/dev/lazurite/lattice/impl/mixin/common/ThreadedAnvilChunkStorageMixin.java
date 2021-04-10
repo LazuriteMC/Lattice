@@ -1,13 +1,14 @@
 package dev.lazurite.lattice.impl.mixin.common;
 
 import com.mojang.datafixers.DataFixer;
-import dev.lazurite.lattice.impl.common.IServerPlayerEntity;
+import dev.lazurite.lattice.impl.common.duck.IServerPlayerEntity;
 import dev.lazurite.lattice.impl.common.util.ChebyshevDistance;
 import dev.lazurite.lattice.impl.mixin.common.access.IThreadedAnvilChunkStorageMixin;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.PlayerChunkWatchingManager;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -42,6 +43,10 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
     @Shadow private int watchDistance;
     @Shadow @Final private ThreadedAnvilChunkStorage.TicketManager ticketManager;
     @Shadow protected abstract void sendWatchPackets(ServerPlayerEntity player, ChunkPos pos, Packet<?>[] packets, boolean withinMaxWatchDistance, boolean withinViewDistance);
+
+    @Shadow @Final private PlayerChunkWatchingManager playerChunkWatchingManager;
+
+    @Shadow protected abstract boolean doesNotGenerateChunks(ServerPlayerEntity player);
 
     public ThreadedAnvilChunkStorageMixin(File file, DataFixer dataFixer, boolean bl) {
         super(file, dataFixer, bl);
@@ -226,7 +231,10 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
 
     @ModifyVariable(
             method = "updateCameraPosition",
-            at = @At("LOAD"),
+            at = @At(
+                    value = "LOAD",
+                    ordinal = 0 // bug with this being applied to 2 different booleans despite using ordinal of 2; target first instruction
+            ),
             ordinal = 2
     )
     public boolean updateCameraPosition_LOAD(boolean bl3) {
@@ -237,11 +245,12 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             method = "updateCameraPosition",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkLeave(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
+                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkLeave(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V",
+                    shift = At.Shift.AFTER
             )
     )
     public void updateCameraPosition_handleChunkLeave(ServerPlayerEntity player, CallbackInfo ci) {
-        if (!this.prevCamPos.equals(this.prevPlayerPos) && this.prevCamPos.asLong() != this.currCamPos.asLong()) {
+        if (!this.prevCamPos.equals(this.prevPlayerPos)) {
             this.ticketManager.handleChunkLeave(this.prevCamPos, player);
         }
     }
@@ -250,11 +259,12 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
             method = "updateCameraPosition",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkEnter(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
+                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkEnter(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V",
+                    shift = At.Shift.AFTER
             )
     )
     public void updateCameraPosition_handleChunkEnter(ServerPlayerEntity player, CallbackInfo ci) {
-        if (!this.currCamPos.equals(this.currPlayerPos) && this.currCamPos.asLong() != this.prevCamPos.asLong()) {
+        if (!this.currCamPos.equals(this.currPlayerPos)) {
             this.ticketManager.handleChunkEnter(this.currCamPos, player);
         }
     }
@@ -282,12 +292,9 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
     )
     public void updateCameraPosition_TAIL(ServerPlayerEntity player, CallbackInfo ci) {
         if (!this.prevCamPos.equals(this.prevPlayerPos) || !this.currCamPos.equals(this.currPlayerPos)) {
-
             if (Math.abs(this.prevCamPos.getX() - this.currCamPos.getX()) <= this.watchDistance * 2 && Math.abs(this.prevCamPos.getZ() - this.currCamPos.getZ()) <= this.watchDistance * 2) {
-
                 for (int x = Math.min(this.prevCamPos.getX(), this.currCamPos.getX()) - this.watchDistance; x <= Math.max(this.prevCamPos.getX(), this.currCamPos.getX()) + this.watchDistance; ++x) {
                     for (int z = Math.min(this.prevCamPos.getZ(), this.currCamPos.getZ()) - this.watchDistance; z <= Math.max(this.prevCamPos.getZ(), this.currCamPos.getZ()) + this.watchDistance; ++z) {
-
                         ChunkPos chunkPos = new ChunkPos(x, z);
 
                         boolean withinMaxWatchDistance = IThreadedAnvilChunkStorageMixin.callGetChebyshevDistance(chunkPos, this.prevCamPos.getX(), this.prevCamPos.getZ()) <= this.watchDistance;

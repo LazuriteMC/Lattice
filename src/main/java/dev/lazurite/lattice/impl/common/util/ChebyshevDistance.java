@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.impl.common.util;
 
-import dev.lazurite.lattice.impl.common.IServerPlayerEntity;
+import dev.lazurite.lattice.impl.common.duck.IServerPlayerEntity;
 import dev.lazurite.lattice.impl.mixin.common.access.IThreadedAnvilChunkStorageMixin;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.ChunkPos;
