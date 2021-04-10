@@ -24,5 +24,11 @@
   "depends": {
     "fabricloader": "*",
     "minecraft": "1.16.x"
+  },
+  "custom": {
+    "modmenu": {
+      "links": { "modmenu.discord": "https://discord.gg/NNPPHN7b3P" },
+      "badges": [ "library" ]
+    }
   }
 }
