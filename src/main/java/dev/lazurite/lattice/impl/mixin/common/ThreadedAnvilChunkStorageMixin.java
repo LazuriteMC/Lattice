@@ -233,36 +233,28 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
         return bl3 || this.prevCamPos.asLong() != this.currCamPos.asLong();
     }
 
-    @Redirect(
+    @Inject(
             method = "updateCameraPosition",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkLeave(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    public void updateCameraPosition_handleChunkLeave(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
-        if (pos.asLong() != this.currPlayerPos.asLong()) { // bl3
-            this.ticketManager.handleChunkLeave(pos, player);
-        }
-
-        if (!this.prevCamPos.equals(pos) && this.prevCamPos.asLong() != this.currCamPos.asLong()) {
+    public void updateCameraPosition_handleChunkLeave(ServerPlayerEntity player, CallbackInfo ci) {
+        if (!this.prevCamPos.equals(this.prevPlayerPos) && this.prevCamPos.asLong() != this.currCamPos.asLong()) {
             this.ticketManager.handleChunkLeave(this.prevCamPos, player);
         }
     }
 
-    @Redirect(
+    @Inject(
             method = "updateCameraPosition",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkEnter(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    public void updateCameraPosition_handleChunkEnter(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
-        if (pos.asLong() != this.prevPlayerPos.asLong()) { // bl3
-            this.ticketManager.handleChunkEnter(pos, player);
-        }
-
-        if (!this.currCamPos.equals(pos) && this.currCamPos.asLong() != this.prevCamPos.asLong()) {
+    public void updateCameraPosition_handleChunkEnter(ServerPlayerEntity player, CallbackInfo ci) {
+        if (!this.currCamPos.equals(this.currPlayerPos) && this.currCamPos.asLong() != this.prevCamPos.asLong()) {
             this.ticketManager.handleChunkEnter(this.currCamPos, player);
         }
     }
