@@ -3,7 +3,7 @@
   "id": "lattice",
   "version": "${version}",
   "name": "Lattice",
-  "description": "A Fabric library mod that allows chunk generation and loading around the player's camera entity.",
+  "description": "A library mod that allows for chunk generation, loading, and rendering around the player's camera entity.",
   "authors": [
     "The Lazurite Team"
   ],
