@@ -36,6 +36,9 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
     @Unique private ChunkSectionPos prevCamPos;
     @Unique private ChunkSectionPos currCamPos;
 
+    @Unique private boolean isWatchDisabled;
+    @Unique private boolean doesNotGenerateChunks;
+
     @Unique private final LinkedHashSet<ChunkPos> addedChunks = new LinkedHashSet<>();
     @Unique private final LinkedHashSet<ChunkPos> removedChunks = new LinkedHashSet<>();
     @Unique private final LinkedHashSet<ChunkPos> otherChunks = new LinkedHashSet<>();
@@ -122,28 +125,32 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
         this.otherChunks.clear();
     }
 
-    @Inject(
+    @Redirect(
             method = "handlePlayerAddedOrRemoved",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkEnter(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    void handlePlayerAddedOrRemoved_handleChunkEnter(ServerPlayerEntity player, boolean added, CallbackInfo ci) {
-        if (!this.currCamPos.equals(this.currPlayerPos)) {
+    void handlePlayerAddedOrRemoved_handleChunkEnter(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
+        this.ticketManager.handleChunkEnter(pos, player);
+
+        if (this.currCamPos.asLong() != pos.asLong()) {
             this.ticketManager.handleChunkEnter(this.currCamPos, player);
         }
     }
 
-    @Inject(
+    @Redirect(
             method = "handlePlayerAddedOrRemoved",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkLeave(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    void handlePlayerAddedOrRemoved_handleChunkLeave(ServerPlayerEntity player, boolean added, CallbackInfo ci) {
-        if (!this.prevCamPos.equals(this.prevPlayerPos)) {
+    void handlePlayerAddedOrRemoved_handleChunkLeave(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
+        this.ticketManager.handleChunkLeave(pos, player);
+
+        if (this.prevCamPos.asLong() != pos.asLong()) {
             this.ticketManager.handleChunkLeave(this.prevCamPos, player);
         }
     }
@@ -224,6 +231,9 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
         this.prevCamPos = ((IServerPlayerEntity) player).getPrevCamPos();
         this.currCamPos = ChunkSectionPos.from(player.getCameraEntity());
 
+        this.isWatchDisabled = this.playerChunkWatchingManager.isWatchDisabled(player);
+        this.doesNotGenerateChunks = this.doesNotGenerateChunks(player);
+
         this.addedChunks.clear();
         this.removedChunks.clear();
         this.otherChunks.clear();
@@ -241,30 +251,36 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
         return bl3 || this.prevCamPos.asLong() != this.currCamPos.asLong();
     }
 
-    @Inject(
+    @Redirect(
             method = "updateCameraPosition",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkLeave(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V",
-                    shift = At.Shift.AFTER
+                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkLeave(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    public void updateCameraPosition_handleChunkLeave(ServerPlayerEntity player, CallbackInfo ci) {
-        if (!this.prevCamPos.equals(this.prevPlayerPos)) {
+    public void updateCameraPosition_handleChunkLeave(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
+        if (pos.asLong() != this.currPlayerPos.asLong() || this.isWatchDisabled != this.doesNotGenerateChunks) {
+            this.ticketManager.handleChunkLeave(pos, player);
+        }
+
+        if (this.prevCamPos.asLong() != pos.asLong()) {
             this.ticketManager.handleChunkLeave(this.prevCamPos, player);
         }
     }
 
-    @Inject(
+    @Redirect(
             method = "updateCameraPosition",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkEnter(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V",
-                    shift = At.Shift.AFTER
+                    target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager;handleChunkEnter(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/server/network/ServerPlayerEntity;)V"
             )
     )
-    public void updateCameraPosition_handleChunkEnter(ServerPlayerEntity player, CallbackInfo ci) {
-        if (!this.currCamPos.equals(this.currPlayerPos)) {
+    public void updateCameraPosition_handleChunkEnter(ThreadedAnvilChunkStorage.TicketManager ticketManager, ChunkSectionPos pos, ServerPlayerEntity player) {
+        if (pos.asLong() != this.prevPlayerPos.asLong() || this.isWatchDisabled != this.doesNotGenerateChunks) {
+            this.ticketManager.handleChunkEnter(pos, player);
+        }
+
+        if (this.currCamPos.asLong() != pos.asLong()) {
             this.ticketManager.handleChunkEnter(this.currCamPos, player);
         }
     }
