@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.lazurite.lattice.impl.mixin",
+  "plugin": "dev.lazurite.lattice.impl.mixin.common.plugin.CommonMixinConfigPlugin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "common.EntityTrackerMixin",
+    "common.PlayerManagerMixin",
+    "common.ServerPlayerEntityMixin",
+    "common.ThreadedAnvilChunkStorageMixin",
+    "common.access.IThreadedAnvilChunkStorageMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

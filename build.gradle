@@ -10,14 +10,26 @@ group = project.maven_group
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 
+repositories {
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
 minecraft {
-    accessWidener "src/main/resources/lattice.accesswidener"
+    accessWidener "src/main/resources/accesswidener/lattice.accesswidener"
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+//    modImplementation "com.github.CaffeineMC:sodium-fabric:mc${project.sodium_version}"
+
+//    modImplementation("com.github.qouteall.ImmersivePortalsMod:imm_ptl_core:v${project.immersive_portals_version}") {
+//        exclude group: "net.fabricmc.fabric-api"
+//    }
 }
 
 processResources {

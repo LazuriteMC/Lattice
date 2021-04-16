@@ -1,17 +1,14 @@
 package dev.lazurite.lattice.impl.mixin.common;
 
-import com.mojang.datafixers.DataFixer;
-import dev.lazurite.lattice.impl.common.duck.IServerPlayerEntity;
-import dev.lazurite.lattice.impl.common.util.ChebyshevDistance;
+import dev.lazurite.lattice.impl.duck.IServerPlayerEntity;
+import dev.lazurite.lattice.impl.util.ChebyshevDistance;
 import dev.lazurite.lattice.impl.mixin.common.access.IThreadedAnvilChunkStorageMixin;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.storage.VersionedChunkStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,7 +24,7 @@ import java.io.File;
 import java.util.LinkedHashSet;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
-public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStorage implements ChunkHolder.PlayersWatchingChunkProvider {
+public abstract class ThreadedAnvilChunkStorageMixin {
 
     @Unique private ChunkSectionPos prevPlayerPos;
     @Unique private ChunkSectionPos currPlayerPos;
@@ -42,10 +39,6 @@ public abstract class ThreadedAnvilChunkStorageMixin extends VersionedChunkStora
     @Shadow private int watchDistance;
     @Shadow @Final private ThreadedAnvilChunkStorage.TicketManager ticketManager;
     @Shadow protected abstract void sendWatchPackets(ServerPlayerEntity player, ChunkPos pos, Packet<?>[] packets, boolean withinMaxWatchDistance, boolean withinViewDistance);
-
-    public ThreadedAnvilChunkStorageMixin(File file, DataFixer dataFixer, boolean bl) {
-        super(file, dataFixer, bl);
-    }
 
     // region getSquaredDistance
 

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "net/minecraft/client/world/ClientChunkManager$ClientChunkMap")
+@Mixin(targets = "net.minecraft.client.world.ClientChunkManager$ClientChunkMap")
 public abstract class ClientChunkMapMixin {
 
     @Unique private int diameterSquared;

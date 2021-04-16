@@ -17,9 +17,15 @@
   "environment": "*",
   "entrypoints": {
   },
-  "accessWidener": "lattice.accesswidener",
+  "accessWidener": "accesswidener/lattice.accesswidener",
   "mixins": [
-    "lattice.mixins.json"
+    {
+      "config": "mixin/lattice.client.json",
+      "environment": "client"
+    }, {
+      "config": "mixin/lattice.common.json",
+      "environment": "*"
+    }
   ],
   "depends": {
     "fabricloader": "*",

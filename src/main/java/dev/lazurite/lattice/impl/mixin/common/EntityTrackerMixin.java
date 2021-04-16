@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.impl.mixin.common;
 
-import dev.lazurite.lattice.impl.common.util.ChebyshevDistance;
+import dev.lazurite.lattice.impl.util.ChebyshevDistance;
 import dev.lazurite.lattice.impl.mixin.common.access.IThreadedAnvilChunkStorageMixin;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.EntityTrackerEntry;
