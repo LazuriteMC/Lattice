@@ -1,4 +1,4 @@
-package dev.lazurite.lattice.impl.duck;
+package dev.lazurite.lattice.impl.util.duck;
 
 import net.minecraft.util.math.ChunkSectionPos;
 

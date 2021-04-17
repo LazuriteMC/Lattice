@@ -1,4 +1,4 @@
-package dev.lazurite.lattice.impl.util;
+package dev.lazurite.lattice.impl.util.plugin;
 
 import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import java.util.*;
 
-public class LazuriteMixinConfigPlugin implements IMixinConfigPlugin {
+public class CompatMixinPlugin implements IMixinConfigPlugin {
 
     protected List<ModCompatibility> modCompatibilities;
 

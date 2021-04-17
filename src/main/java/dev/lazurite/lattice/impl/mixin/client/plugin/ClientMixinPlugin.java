@@ -1,16 +1,12 @@
 package dev.lazurite.lattice.impl.mixin.client.plugin;
 
-import dev.lazurite.lattice.impl.util.LazuriteMixinConfigPlugin;
+import dev.lazurite.lattice.impl.util.plugin.CompatMixinPlugin;
 
-public final class ClientMixinConfigPlugin extends LazuriteMixinConfigPlugin {
+public final class ClientMixinPlugin extends CompatMixinPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
         super.onLoad(mixinPackage);
-
-        this.modCompatibilities.add(
-                new ModCompatibility("imm_ptl_core")
-        );
 
         this.modCompatibilities.add(
                 new ModCompatibility("sodium")

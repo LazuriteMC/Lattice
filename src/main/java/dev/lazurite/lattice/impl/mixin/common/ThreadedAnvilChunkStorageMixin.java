@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.impl.mixin.common;
 
-import dev.lazurite.lattice.impl.duck.IServerPlayerEntity;
+import dev.lazurite.lattice.impl.util.duck.IServerPlayerEntity;
 import dev.lazurite.lattice.impl.util.ChebyshevDistance;
 import dev.lazurite.lattice.impl.mixin.common.access.IThreadedAnvilChunkStorageMixin;
 import net.minecraft.entity.Entity;
@@ -20,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.io.File;
 import java.util.LinkedHashSet;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
