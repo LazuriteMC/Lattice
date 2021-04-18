@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import java.util.*;
 
-public class CompatMixinPlugin implements IMixinConfigPlugin {
+public class ModCompatMixinPlugin implements IMixinConfigPlugin {
 
     protected List<ModCompatibility> modCompatibilities;
 

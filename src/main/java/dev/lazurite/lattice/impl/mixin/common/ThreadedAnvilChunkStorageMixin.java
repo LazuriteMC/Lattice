@@ -76,7 +76,8 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     @ModifyVariable(
             method = "method_17219",
             at = @At("STORE"),
-            ordinal = 0
+            ordinal = 0,
+            remap = false
     )
     private boolean method_17219_STORE0(boolean bl, ChunkPos chunkPos, int j, Packet<?>[] packets, ServerPlayerEntity serverPlayerEntity) {
         return bl || ChebyshevDistance.fromCameraEntity(chunkPos, serverPlayerEntity, true) <= j;
@@ -85,7 +86,8 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     @ModifyVariable(
             method = "method_17219",
             at = @At("STORE"),
-            ordinal = 1
+            ordinal = 1,
+            remap = false
     )
     private boolean method_17219_STORE1(boolean bl2, ChunkPos chunkPos, int j, Packet<?>[] packets, ServerPlayerEntity serverPlayerEntity) {
         return bl2 || ChebyshevDistance.fromCameraEntity(chunkPos, serverPlayerEntity, true) <= this.watchDistance;
@@ -329,7 +331,8 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     @Inject(
             method = "method_18707",
             at = @At("HEAD"),
-            cancellable = true
+            cancellable = true,
+            remap = false
     )
     private void method_18707(ChunkPos chunkPos, boolean onlyOnWatchDistanceEdge, ServerPlayerEntity serverPlayerEntity, CallbackInfoReturnable<Boolean> cir) {
         int i = ChebyshevDistance.fromServerPlayerEntity(chunkPos, serverPlayerEntity, true);

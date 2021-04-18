@@ -20,10 +20,10 @@
   "accessWidener": "accesswidener/lattice.accesswidener",
   "mixins": [
     {
-      "config": "mixin/lattice.client.json",
+      "config": "mixin.client.json",
       "environment": "client"
     }, {
-      "config": "mixin/lattice.common.json",
+      "config": "mixin.common.json",
       "environment": "*"
     }
   ],

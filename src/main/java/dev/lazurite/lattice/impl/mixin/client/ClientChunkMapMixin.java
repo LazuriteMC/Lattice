@@ -36,7 +36,7 @@ public abstract class ClientChunkMapMixin {
     }
 
     @Inject(
-            method = "getIndex",
+            method = "getIndex(II)I",
             at = @At("RETURN"),
             cancellable = true
     )
@@ -47,7 +47,7 @@ public abstract class ClientChunkMapMixin {
     }
 
     @Inject(
-            method = "isInRadius",
+            method = "isInRadius(II)Z",
             at = @At("RETURN"),
             cancellable = true
     )
