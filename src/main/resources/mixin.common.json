@@ -1,5 +1,6 @@
 {
   "required": true,
+  "refmap": "lattice-refmap.json",
   "minVersion": "0.8",
   "package": "dev.lazurite.lattice.impl.mixin",
   "compatibilityLevel": "JAVA_8",
