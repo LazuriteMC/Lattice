@@ -1,6 +1,5 @@
 {
   "required": true,
-  "refmap": "lattice-refmap.json",
   "minVersion": "0.8",
   "package": "dev.lazurite.lattice.impl.mixin",
   "compatibilityLevel": "JAVA_8",
@@ -9,6 +8,7 @@
     "common.PlayerManagerMixin",
     "common.ServerPlayerEntityMixin",
     "common.ThreadedAnvilChunkStorageMixin",
+    "common.access.IEntityTrackerEntry",
     "common.access.IThreadedAnvilChunkStorageMixin"
   ],
   "injectors": {

@@ -24,7 +24,7 @@ public abstract class ClientChunkMapMixin {
     }
 
     @ModifyArg(
-            method = "<init>(I)V",
+            method = "<init>",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/concurrent/atomic/AtomicReferenceArray;<init>(I)V"

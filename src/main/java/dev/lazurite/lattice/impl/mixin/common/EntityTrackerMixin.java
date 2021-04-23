@@ -1,5 +1,6 @@
 package dev.lazurite.lattice.impl.mixin.common;
 
+import dev.lazurite.lattice.impl.mixin.common.access.IEntityTrackerEntry;
 import dev.lazurite.lattice.impl.util.ChebyshevDistance;
 import dev.lazurite.lattice.impl.mixin.common.access.IThreadedAnvilChunkStorageMixin;
 import net.minecraft.entity.Entity;
@@ -16,8 +17,6 @@ import org.spongepowered.asm.mixin.injection.*;
 @Mixin(targets = "net.minecraft.server.world.ThreadedAnvilChunkStorage$EntityTracker")
 public abstract class EntityTrackerMixin {
 
-    @Shadow @Final ThreadedAnvilChunkStorage field_18245;
-
     @Shadow @Final private EntityTrackerEntry entry;
     @Shadow protected abstract int getMaxTrackDistance();
     @Shadow @Final private Entity entity;
@@ -32,7 +31,7 @@ public abstract class EntityTrackerMixin {
     )
     public boolean updateCameraPosition_STORE0(boolean bl, ServerPlayerEntity player) {
         Vec3d vec3d = player.getCameraEntity().getPos().subtract(this.entry.getLastPos());
-        int i = Math.min(this.getMaxTrackDistance(), (((IThreadedAnvilChunkStorageMixin) this.field_18245).getWatchDistance() - 1) * 16);
+        int i = Math.min(this.getMaxTrackDistance(), (((IThreadedAnvilChunkStorageMixin) ((IEntityTrackerEntry) this.entry).getWorld().getChunkManager().threadedAnvilChunkStorage).getWatchDistance() - 1) * 16);
         return bl || vec3d.x >= (double)(-i) && vec3d.x <= (double)i && vec3d.z >= (double)(-i) && vec3d.z <= (double)i && this.entity.canBeSpectated(player);
     }
 
@@ -45,7 +44,7 @@ public abstract class EntityTrackerMixin {
             index = 5 // can't use ordinal (bug?)
     )
     public boolean updateCameraPosition_STORE1(boolean bl2, ServerPlayerEntity player) {
-        return bl2 || ChebyshevDistance.fromCameraEntity(new ChunkPos(this.entity.chunkX, this.entity.chunkZ), player, false) <= ((IThreadedAnvilChunkStorageMixin) this.field_18245).getWatchDistance();
+        return bl2 || ChebyshevDistance.fromCameraEntity(new ChunkPos(this.entity.chunkX, this.entity.chunkZ), player, false) <= ((IThreadedAnvilChunkStorageMixin) ((IEntityTrackerEntry) this.entry).getWorld().getChunkManager().threadedAnvilChunkStorage).getWatchDistance();
     }
 
 }
