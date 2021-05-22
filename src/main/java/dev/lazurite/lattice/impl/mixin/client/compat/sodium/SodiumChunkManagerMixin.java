@@ -18,12 +18,13 @@ public abstract class SodiumChunkManagerMixin {
     @Shadow private int centerZ;
 
     @Redirect(
-            method = "updateLoadDistance",
+            method = { "updateLoadDistance", "method_20180" },
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/lang/Math;abs(I)I",
                     ordinal = 0
-            )
+            ),
+            require = 1
     )
     public int updateLoadDistance_abs0(int x) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
@@ -31,12 +32,13 @@ public abstract class SodiumChunkManagerMixin {
     }
 
     @Redirect(
-            method = "updateLoadDistance",
+            method = { "updateLoadDistance", "method_20180" },
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/lang/Math;abs(I)I",
                     ordinal = 1
-            )
+            ),
+            require = 1
     )
     public int updateLoadDistance_abs1(int z) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
