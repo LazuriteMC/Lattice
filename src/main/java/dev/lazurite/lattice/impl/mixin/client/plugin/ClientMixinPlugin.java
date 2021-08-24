@@ -16,7 +16,7 @@ public final class ClientMixinPlugin extends ModCompatMixinPlugin {
 
                 // ClientChunkManager
                 .addIncompatibleMixin("dev.lazurite.lattice.imple.mixin.client.ClientChunkMapMixin")
-                .addAdditionalMixin("client.compat.sodium.SodiumChunkManagerMixin")
+//                .addAdditionalMixin("client.compat.sodium.SodiumChunkManagerMixin")
         );
     }
 

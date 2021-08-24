@@ -4,20 +4,20 @@
   "version": "${version}",
   "name": "Lattice",
   "description": "A library mod that allows for chunk generation, loading, and rendering around the player's camera entity.",
-  "authors": [
-    "The Lazurite Team"
-  ],
+  "authors": [ "The Lazurite Team" ],
+
   "contact": {
     "homepage": "https://lazurite.dev",
     "sources": "https://github.com/LazuriteMC/Lattice",
     "issues": "https://github.com/LazuriteMC/Lattice/issues"
   },
+
   "license": "MIT",
   "icon": "assets/lattice/icon.png",
   "environment": "*",
-  "entrypoints": {
-  },
+  "entrypoints": {},
   "accessWidener": "accesswidener/lattice.accesswidener",
+
   "mixins": [
     {
       "config": "mixin.client.json",
@@ -27,10 +27,12 @@
       "environment": "*"
     }
   ],
+
   "depends": {
     "fabricloader": "*",
-    "minecraft": "1.16.x"
+    "minecraft": "1.17.x"
   },
+
   "custom": {
     "modmenu": {
       "links": {

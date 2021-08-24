@@ -47,6 +47,7 @@ public abstract class SetupTerrainMixin {
         return this.client.getCameraEntity().getZ();
     }
 
+    /*
     // for production environment
     @Redirect(
             method = "setupTerrain",
@@ -124,5 +125,5 @@ public abstract class SetupTerrainMixin {
     private int setupTerrain_chunkZ_dev(ClientPlayerEntity player) {
         return this.client.getCameraEntity().chunkZ;
     }
-
+    */
 }

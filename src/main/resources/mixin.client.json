@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "dev.lazurite.lattice.impl.mixin",
   "plugin": "dev.lazurite.lattice.impl.mixin.client.plugin.ClientMixinPlugin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_16",
   "client": [
     "client.ClientChunkMapMixin",
     "client.MinecraftClientMixin",

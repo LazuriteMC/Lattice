@@ -15,7 +15,7 @@ public final class ChebyshevDistance {
         int k;
         int l;
         if (useCameraPosition) {
-            ChunkSectionPos chunkSectionPos = player.getCameraPosition();
+            ChunkSectionPos chunkSectionPos = player.getWatchedSection();
             k = chunkSectionPos.getSectionX();
             l = chunkSectionPos.getSectionZ();
         } else {
