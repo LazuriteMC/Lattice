@@ -14,37 +14,37 @@ public abstract class MinecraftClientMixin {
 
     @Shadow @Nullable public Entity cameraEntity;
 
-//    @Redirect(
-//            method = "tick",
-//            at = @At(
-//                    value = "INVOKE",
-//                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getX()D"
-//            )
-//    )
-//    public double tick_getX(ClientPlayerEntity player) {
-//        return this.cameraEntity.getX();
-//    }
+    @Redirect(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getBlockX()I"
+            )
+    )
+    public int tick_getBlockX(ClientPlayerEntity player) {
+        return this.cameraEntity.getBlockX();
+    }
 
-//    @Redirect(
-//            method = "tick",
-//            at = @At(
-//                    value = "INVOKE",
-//                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getY()D"
-//            )
-//    )
-//    public double tick_getY(ClientPlayerEntity player) {
-//        return this.cameraEntity.getY();
-//    }
+    @Redirect(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getBlockY()I"
+            )
+    )
+    public int tick_getBlockY(ClientPlayerEntity player) {
+        return this.cameraEntity.getBlockY();
+    }
 
-//    @Redirect(
-//            method = "tick",
-//            at = @At(
-//                    value = "INVOKE",
-//                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getZ()D"
-//            )
-//    )
-//    public double tick_getZ(ClientPlayerEntity player) {
-//        return this.cameraEntity.getZ();
-//    }
+    @Redirect(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/network/ClientPlayerEntity;getBlockZ()I"
+            )
+    )
+    public int tick_getBlockZ(ClientPlayerEntity player) {
+        return this.cameraEntity.getBlockZ();
+    }
 
 }

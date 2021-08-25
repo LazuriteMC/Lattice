@@ -15,15 +15,15 @@
   "license": "MIT",
   "icon": "assets/lattice/icon.png",
   "environment": "*",
-  "entrypoints": {},
+  "entrypoints": { },
   "accessWidener": "accesswidener/lattice.accesswidener",
 
   "mixins": [
     {
-      "config": "mixin.client.json",
+      "config": "lattice.mixin.client.json",
       "environment": "client"
     }, {
-      "config": "mixin.common.json",
+      "config": "lattice.mixin.common.json",
       "environment": "*"
     }
   ],

@@ -28,7 +28,7 @@ processResources {
     }
 }
 
-tasks.withType(JavaCompile) {
+compileJava {
     options.encoding = "UTF-8"
     it.options.release = 16
 }
@@ -43,13 +43,10 @@ java {
 }
 
 jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
-    }
+    from "LICENSE"
 }
 
-remapJar {
-}
+remapJar { }
 
 publishing {
     publications {
@@ -58,7 +55,7 @@ publishing {
 
             pom {
                 name = 'Lattice'
-                description = "A library mod that allows for chunk generation, loading, and rendering around the player' s camera entity."
+                description = "A library mod that allows for chunk generation, loading, and rendering around the player's camera entity."
                 url = 'https://github.com/LazuriteMC/Lattice'
                 developers {
                     developer {
