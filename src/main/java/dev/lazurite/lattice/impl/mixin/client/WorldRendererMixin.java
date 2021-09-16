@@ -1,4 +1,4 @@
-package dev.lazurite.lattice.impl.mixin.client.world_renderer;
+package dev.lazurite.lattice.impl.mixin.client;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(WorldRenderer.class)
-public abstract class SetupTerrainMixin {
+public abstract class WorldRendererMixin {
 
     @Shadow @Final private MinecraftClient client;
 

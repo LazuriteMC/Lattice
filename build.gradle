@@ -1,17 +1,17 @@
 plugins {
-    id 'fabric-loom' version '0.8-SNAPSHOT'
-    id 'maven-publish'
+    id "fabric-loom" version "0.9-SNAPSHOT"
+    id "maven-publish"
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
 
+group = project.maven_group
 archivesBaseName = project.archives_base_name
 version = project.mod_version
-group = project.maven_group
 
-minecraft {
-    accessWidener "src/main/resources/accesswidener/lattice.accesswidener"
+loom {
+    accessWidenerPath = file "src/main/resources/accesswidener/lattice.accesswidener"
 }
 
 dependencies {
@@ -30,16 +30,15 @@ processResources {
 
 compileJava {
     options.encoding = "UTF-8"
-    it.options.release = 16
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
-    from sourceSets.main.allSource
+    options.release = 16
 }
 
 java {
     withSourcesJar()
+}
+
+sourcesJar {
+    from sourceSets.main.allSource
 }
 
 jar {
@@ -51,26 +50,26 @@ remapJar { }
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'lattice'
+            artifactId = "lattice"
 
             pom {
-                name = 'Lattice'
+                name = "Lattice"
                 description = "A library mod that allows for chunk generation, loading, and rendering around the player's camera entity."
-                url = 'https://github.com/LazuriteMC/Lattice'
+                url = "https://github.com/LazuriteMC/Lattice"
                 developers {
                     developer {
-                        id = 'innatebit'
-                        name = 'InnateBit'
-                        email = 'patrickhofmanndesigns@gmail.com'
+                        id = "innatebit"
+                        name = "InnateBit"
+                        email = "patrickhofmanndesigns@gmail.com"
                     }
                 }
             }
 
             versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
                 }
-                usage('java-runtime') {
+                usage("java-runtime") {
                     fromResolutionResult()
                 }
             }
@@ -89,7 +88,7 @@ publishing {
         mavenLocal()
 
         maven {
-            url = 'https://lazurite.dev/maven/releases'
+            url = "https://lazurite.dev/maven/releases"
             credentials {
                 username = project.property("publish.lazurite.alias")
                 password = project.property("publish.lazurite.secret")

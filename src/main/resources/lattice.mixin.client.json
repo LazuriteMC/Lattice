@@ -6,7 +6,7 @@
   "client": [
     "client.ClientChunkMapMixin",
     "client.MinecraftClientMixin",
-    "client.world_renderer.SetupTerrainMixin"
+    "client.WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
