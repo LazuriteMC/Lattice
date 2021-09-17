@@ -1,15 +1,14 @@
 pluginManagement {
     repositories {
-        maven {
-            name = "Fabric"
-            url = "https://maven.fabricmc.net/"
-        }
         gradlePluginPortal()
+        maven { url = "https://maven.fabricmc.net/" }
     }
+
 }
 
-rootProject.name = "lattice"
+rootProject.name = "${mod_name}"
 
 include "lattice-camera"
 include "lattice-chunk"
 include "lattice-core"
+include "lattice-entity"

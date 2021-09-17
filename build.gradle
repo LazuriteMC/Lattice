@@ -1,15 +1,16 @@
 plugins {
-    id "fabric-loom" version "0.9-SNAPSHOT"
+    id "fabric-loom" version "${loom_version}"
     id "maven-publish"
 }
 
-allprojects {
+allprojects { project ->
     apply plugin: "fabric-loom"
 
     sourceCompatibility = JavaVersion.VERSION_16
     targetCompatibility = JavaVersion.VERSION_16
 
     group = rootProject.mod_group
+    archivesBaseName = project.mod_name
     version = rootProject.mod_version
 
     dependencies {
@@ -26,29 +27,10 @@ allprojects {
         }
     }
 
-    compileJava {
-        options.encoding = "UTF-8"
-        options.release = 16
-    }
-
     java {
         withSourcesJar()
     }
 
-    sourcesJar {
-        from sourceSets.main.allSource
-    }
-
-    jar {
-        from "LICENSE"
-    }
-
-}
-
-archivesBaseName = mod_name
-
-subprojects {
-    archivesBaseName = mod_name
 }
 
 loom {
@@ -59,4 +41,5 @@ dependencies {
     include project(":lattice-camera")
     include project(":lattice-chunk")
     include project(":lattice-core")
+    include project(":lattice-entity")
 }
