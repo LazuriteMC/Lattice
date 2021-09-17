@@ -3,96 +3,60 @@ plugins {
     id "maven-publish"
 }
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+allprojects {
+    apply plugin: "fabric-loom"
 
-group = project.maven_group
-archivesBaseName = project.archives_base_name
-version = project.mod_version
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+
+    group = rootProject.mod_group
+    version = rootProject.mod_version
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}"
+        modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+    }
+
+    // what does this do?
+    processResources {
+        inputs.property "version", rootProject.version
+        filesMatching("fabric.mod.json") {
+            expand "version": rootProject.version
+        }
+    }
+
+    compileJava {
+        options.encoding = "UTF-8"
+        options.release = 16
+    }
+
+    java {
+        withSourcesJar()
+    }
+
+    sourcesJar {
+        from sourceSets.main.allSource
+    }
+
+    jar {
+        from "LICENSE"
+    }
+
+}
+
+archivesBaseName = mod_name
+
+subprojects {
+    archivesBaseName = mod_name
+}
 
 loom {
     accessWidenerPath = file "src/main/resources/accesswidener/lattice.accesswidener"
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-}
-
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
-}
-
-compileJava {
-    options.encoding = "UTF-8"
-    options.release = 16
-}
-
-java {
-    withSourcesJar()
-}
-
-sourcesJar {
-    from sourceSets.main.allSource
-}
-
-jar {
-    from "LICENSE"
-}
-
-remapJar { }
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = "lattice"
-
-            pom {
-                name = "Lattice"
-                description = "A library mod that allows for chunk generation, loading, and rendering around the player's camera entity."
-                url = "https://github.com/LazuriteMC/Lattice"
-                developers {
-                    developer {
-                        id = "innatebit"
-                        name = "InnateBit"
-                        email = "patrickhofmanndesigns@gmail.com"
-                    }
-                }
-            }
-
-            versionMapping {
-                usage("java-api") {
-                    fromResolutionOf("runtimeClasspath")
-                }
-                usage("java-runtime") {
-                    fromResolutionResult()
-                }
-            }
-
-            artifact(remapJar) {
-                builtBy remapJar
-            }
-
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-        }
-    }
-
-    repositories {
-        mavenLocal()
-
-        maven {
-            url = "https://lazurite.dev/maven/releases"
-            credentials {
-                username = project.property("publish.lazurite.alias")
-                password = project.property("publish.lazurite.secret")
-            }
-        }
-    }
+    include project(":lattice-camera")
+    include project(":lattice-chunk")
+    include project(":lattice-core")
 }

@@ -8,4 +8,8 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Lattice"
+rootProject.name = "lattice"
+
+include "lattice-camera"
+include "lattice-chunk"
+include "lattice-core"
