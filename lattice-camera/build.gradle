@@ -1,1 +1,5 @@
 archivesBaseName = mod_name
+
+dependencies {
+    implementation project(path: ":lattice-core")
+}

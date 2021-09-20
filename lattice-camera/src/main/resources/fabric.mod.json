@@ -10,10 +10,19 @@
   "icon": "",
   "environment": "*",
   "entrypoints": {
-    "client": [],
-    "main": []
+    "client": [ "dev.lazurite.lattice.camera.impl.client.LatticeCameraClient" ],
+    "main": [ "dev.lazurite.lattice.camera.impl.common.LatticeCameraCommon" ]
   },
-  "mixins": [],
+  "mixins": [
+    {
+      "environment": "client",
+      "config": "lattice-camera.client.mixins.json"
+    },
+    {
+      "environment": "*",
+      "config": "lattice-camera.common.mixins.json"
+    }
+  ],
   "depends": {
     "fabricloader": ">=0.11.7",
     "fabric": "*",

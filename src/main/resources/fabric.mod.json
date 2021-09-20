@@ -18,15 +18,7 @@
   "entrypoints": { },
   "accessWidener": "accesswidener/lattice.accesswidener",
 
-  "mixins": [
-    {
-      "config": "lattice.mixin.client.json",
-      "environment": "client"
-    }, {
-      "config": "lattice.mixin.common.json",
-      "environment": "*"
-    }
-  ],
+  "mixins": [],
 
   "depends": {
     "fabricloader": "*",
