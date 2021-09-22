@@ -4,7 +4,9 @@
   "package": "dev.lazurite.lattice.entity.impl.common.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "access.EntityAccessMixin",
+    "access.LivingEntityAccessMixin"
   ],
   "injectors": {
     "defaultRequire": 1

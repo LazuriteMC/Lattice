@@ -17,6 +17,8 @@ allprojects { project ->
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         mappings loom.officialMojangMappings()
         modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+
+        implementation "org.joml:joml:1.10.2"
     }
 
     // what does this do?
