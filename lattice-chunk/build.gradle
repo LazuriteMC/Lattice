@@ -1,1 +1,9 @@
 archivesBaseName = mod_name
+
+loom {
+    accessWidenerPath = file "src/main/resources/lattice.accesswidener"
+}
+
+dependencies {
+    implementation project(path: ":lattice-core")
+}

@@ -1,8 +1,9 @@
 package dev.lazurite.lattice.camera.impl.client.mixin;
 
+import dev.lazurite.lattice.core.impl.iapi.duck.IPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
-    @Shadow @Nullable public Entity cameraEntity;
+    @Shadow @Nullable public LocalPlayer player;
 
     @Redirect(
             method = "tick",
@@ -22,7 +23,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockX(LocalPlayer localPlayer) {
-        return this.cameraEntity.getBlockX();
+        return Mth.floor(((IPlayer) this.player).getViewable().getX()); // TODO Why floor instead of int cast?
     }
 
     @Redirect(
@@ -33,7 +34,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockY(LocalPlayer localPlayer) {
-        return this.cameraEntity.getBlockY();
+        return Mth.floor(((IPlayer) this.player).getViewable().getY()); // TODO Why floor instead of int cast?
     }
 
     @Redirect(
@@ -44,7 +45,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockZ(LocalPlayer localPlayer) {
-        return this.cameraEntity.getBlockZ();
+        return Mth.floor(((IPlayer) this.player).getViewable().getZ()); // TODO Why floor instead of int cast?
     }
 
 }

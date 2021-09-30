@@ -1,7 +1,10 @@
-package dev.lazurite.lattice.entity.impl.common.util.duck;
+package dev.lazurite.lattice.entity.impl.iapi.duck;
 
 import org.joml.Vector3d;
 
+/**
+ * Used to access data from {@link net.minecraft.world.entity.Entity} internally.
+ */
 public interface IEntityAccess {
     Vector3d getPosition();
     Vector3d getPreviousPosition();

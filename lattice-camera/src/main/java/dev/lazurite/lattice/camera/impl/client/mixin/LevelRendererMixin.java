@@ -1,14 +1,16 @@
 package dev.lazurite.lattice.camera.impl.client.mixin;
 
+import dev.lazurite.lattice.core.impl.iapi.duck.IPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.LevelRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(net.minecraft.client.renderer.LevelRenderer.class)
+@Mixin(LevelRenderer.class)
 public abstract class LevelRendererMixin {
 
     @Shadow @Final private Minecraft minecraft;
@@ -21,7 +23,7 @@ public abstract class LevelRendererMixin {
             )
     )
     public final double setupRender_getX(LocalPlayer localPlayer) {
-        return this.minecraft.getCameraEntity().getX();
+        return ((IPlayer) this.minecraft.player).getViewable().getX();
     }
 
     @Redirect(
@@ -32,7 +34,7 @@ public abstract class LevelRendererMixin {
             )
     )
     public final double setupRender_getY(LocalPlayer localPlayer) {
-        return this.minecraft.getCameraEntity().getY();
+        return ((IPlayer) this.minecraft.player).getViewable().getY();
     }
 
     @Redirect(
@@ -43,7 +45,7 @@ public abstract class LevelRendererMixin {
             )
     )
     public final double setupRender_getZ(LocalPlayer localPlayer) {
-        return this.minecraft.getCameraEntity().getZ();
+        return ((IPlayer) this.minecraft.player).getViewable().getZ();
     }
 
 }

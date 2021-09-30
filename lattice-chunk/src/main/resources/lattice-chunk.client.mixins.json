@@ -4,6 +4,7 @@
   "package": "dev.lazurite.lattice.chunk.impl.client.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
+    "StorageMixin"
   ],
   "injectors": {
     "defaultRequire": 1

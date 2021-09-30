@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.entity.impl.common.mixin.access;
 
-import dev.lazurite.lattice.entity.impl.common.util.duck.IEntityAccess;
+import dev.lazurite.lattice.entity.impl.iapi.duck.IEntityAccess;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
