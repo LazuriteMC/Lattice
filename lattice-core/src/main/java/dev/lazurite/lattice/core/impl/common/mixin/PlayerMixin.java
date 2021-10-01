@@ -1,4 +1,4 @@
-package dev.lazurite.lattice.camera.impl.common.mixin;
+package dev.lazurite.lattice.core.impl.common.mixin;
 
 import com.mojang.authlib.GameProfile;
 import dev.lazurite.lattice.core.impl.iapi.duck.IPlayer;

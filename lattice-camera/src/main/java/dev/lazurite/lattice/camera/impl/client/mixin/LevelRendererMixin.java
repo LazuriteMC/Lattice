@@ -15,6 +15,9 @@ public abstract class LevelRendererMixin {
 
     @Shadow @Final private Minecraft minecraft;
 
+    /**
+     * Uses the {@link dev.lazurite.lattice.core.api.Viewable} position instead of the player's position.
+     */
     @Redirect(
             method = "setupRender",
             at = @At(
@@ -26,6 +29,9 @@ public abstract class LevelRendererMixin {
         return ((IPlayer) this.minecraft.player).getViewable().getX();
     }
 
+    /**
+     * Uses the {@link dev.lazurite.lattice.core.api.Viewable} position instead of the player's position.
+     */
     @Redirect(
             method = "setupRender",
             at = @At(
@@ -37,6 +43,9 @@ public abstract class LevelRendererMixin {
         return ((IPlayer) this.minecraft.player).getViewable().getY();
     }
 
+    /**
+     * Uses the {@link dev.lazurite.lattice.core.api.Viewable} position instead of the player's position.
+     */
     @Redirect(
             method = "setupRender",
             at = @At(

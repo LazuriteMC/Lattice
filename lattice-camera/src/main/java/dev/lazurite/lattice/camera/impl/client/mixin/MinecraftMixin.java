@@ -1,20 +1,19 @@
 package dev.lazurite.lattice.camera.impl.client.mixin;
 
+import dev.lazurite.lattice.core.impl.common.util.BlockPosUtil;
 import dev.lazurite.lattice.core.impl.iapi.duck.IPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
-    @Shadow @Nullable public LocalPlayer player;
-
+    /**
+     * Uses the {@link dev.lazurite.lattice.core.api.Viewable} position instead of the player's position.
+     */
     @Redirect(
             method = "tick",
             at = @At(
@@ -23,9 +22,12 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockX(LocalPlayer localPlayer) {
-        return Mth.floor(((IPlayer) this.player).getViewable().getX()); // TODO Why floor instead of int cast?
+        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().getX());
     }
 
+    /**
+     * Uses the {@link dev.lazurite.lattice.core.api.Viewable} position instead of the player's position.
+     */
     @Redirect(
             method = "tick",
             at = @At(
@@ -34,9 +36,12 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockY(LocalPlayer localPlayer) {
-        return Mth.floor(((IPlayer) this.player).getViewable().getY()); // TODO Why floor instead of int cast?
+        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().getX());
     }
 
+    /**
+     * Uses the {@link dev.lazurite.lattice.core.api.Viewable} position instead of the player's position.
+     */
     @Redirect(
             method = "tick",
             at = @At(
@@ -45,7 +50,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockZ(LocalPlayer localPlayer) {
-        return Mth.floor(((IPlayer) this.player).getViewable().getZ()); // TODO Why floor instead of int cast?
+        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().getX());
     }
 
 }

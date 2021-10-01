@@ -4,7 +4,6 @@
   "package": "dev.lazurite.lattice.camera.impl.common.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "PlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

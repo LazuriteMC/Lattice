@@ -16,7 +16,6 @@
   "icon": "assets/lattice/icon.png",
   "environment": "*",
   "entrypoints": { },
-  "accessWidener": "accesswidener/lattice.accesswidener",
 
   "mixins": [],
 

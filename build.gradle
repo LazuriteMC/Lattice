@@ -35,10 +35,6 @@ allprojects { project ->
 
 }
 
-loom {
-    accessWidenerPath = file "src/main/resources/accesswidener/lattice.accesswidener"
-}
-
 dependencies {
     include project(":lattice-camera")
     include project(":lattice-chunk")
