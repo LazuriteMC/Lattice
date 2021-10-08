@@ -1,9 +1,10 @@
-archivesBaseName = mod_name
+archivesBaseName = lattice_archivesBaseName
+description = lattice_description
 
 loom {
-    accessWidenerPath = file "src/main/resources/lattice.accesswidener"
+    accessWidenerPath = file "src/main/resources/lattice-chunk.accesswidener"
 }
 
 dependencies {
-    implementation project(path: ":lattice-core")
+    implementation project(":lattice-core")
 }

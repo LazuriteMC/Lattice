@@ -1,5 +1,6 @@
-archivesBaseName = mod_name
+archivesBaseName = lattice_archivesBaseName
+description = lattice_description
 
 dependencies {
-    implementation project(path: ":lattice-core")
+    implementation project(":lattice-core")
 }

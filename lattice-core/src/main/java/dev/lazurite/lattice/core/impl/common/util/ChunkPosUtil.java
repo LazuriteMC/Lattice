@@ -25,8 +25,8 @@ public final class ChunkPosUtil {
 
     public static ChunkPos of(Viewable viewable) {
         return new ChunkPos(
-                ChunkPosUtil.posToChunkCoord(viewable.getX()),
-                ChunkPosUtil.posToChunkCoord(viewable.getY())
+                ChunkPosUtil.posToChunkCoord(viewable.latGetX()),
+                ChunkPosUtil.posToChunkCoord(viewable.latGetY())
         );
     }
 

@@ -1,23 +1,29 @@
 package dev.lazurite.lattice.core.api;
 
-import org.joml.Quaternionf;
-import org.joml.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 public interface Viewable {
-    Vector3d getPosition();
-    Vector3d getPosition(final double delta);
+    Vec3 latGetPosition();
+    Vec3 latGetPosition(final float delta);
+    Vec3 latGetPosition(final double delta);
 
-    double getX();
-    double getX(final double delta);
+    double latGetX();
+    double latGetX(final float delta);
+    double latGetX(final double delta);
 
-    double getY();
-    double getY(final double delta);
+    double latGetY();
+    double latGetY(final float delta);
+    double latGetY(final double delta);
 
-    double getZ();
-    double getZ(final double delta);
+    double latGetZ();
+    double latGetZ(final float delta);
+    double latGetZ(final double delta);
 
-    Quaternionf getRotation();
-    Quaternionf getRotation(final float delta);
+    float latGetPitch();
+    float latGetPitch(final float delta);
+
+    float latGetYaw();
+    float latGetYaw(final float delta);
 
     boolean shouldRenderPlayer();
 }

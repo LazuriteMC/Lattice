@@ -26,7 +26,7 @@ public abstract class LevelRendererMixin {
             )
     )
     public final double setupRender_getX(LocalPlayer localPlayer) {
-        return ((IPlayer) this.minecraft.player).getViewable().getX();
+        return ((IPlayer) this.minecraft.player).getViewable().latGetX();
     }
 
     /**
@@ -40,7 +40,7 @@ public abstract class LevelRendererMixin {
             )
     )
     public final double setupRender_getY(LocalPlayer localPlayer) {
-        return ((IPlayer) this.minecraft.player).getViewable().getY();
+        return ((IPlayer) this.minecraft.player).getViewable().latGetY();
     }
 
     /**
@@ -54,7 +54,7 @@ public abstract class LevelRendererMixin {
             )
     )
     public final double setupRender_getZ(LocalPlayer localPlayer) {
-        return ((IPlayer) this.minecraft.player).getViewable().getZ();
+        return ((IPlayer) this.minecraft.player).getViewable().latGetZ();
     }
 
 }

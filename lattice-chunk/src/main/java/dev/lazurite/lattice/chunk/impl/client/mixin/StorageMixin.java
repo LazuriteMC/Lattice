@@ -39,7 +39,8 @@ public abstract class StorageMixin {
      * Allows for the storing of two chunk "regions."
      */
     @ModifyArg(
-            method = "<init>",
+            method = "Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;<init>(I)V",
+//            method = "<init>",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/concurrent/atomic/AtomicReferenceArray;<init>(I)V"
@@ -54,7 +55,8 @@ public abstract class StorageMixin {
      * @see StorageMixin#init_init(int)
      */
     @Inject(
-            method = "getIndex",
+            method = "Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;getIndex(II)I",
+//            method = "getIndex",
             at = @At("RETURN"),
             cancellable = true
     )
@@ -69,7 +71,8 @@ public abstract class StorageMixin {
      * @see StorageMixin#isInPlayerRadius(int, int)
      */
     @Inject(
-            method = "inRange",
+            method = "Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;inRange(II)Z",
+//            method = "inRange",
             at = @At("RETURN"),
             cancellable = true
     )

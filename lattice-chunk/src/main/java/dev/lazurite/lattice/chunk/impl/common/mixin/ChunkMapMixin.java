@@ -63,8 +63,8 @@ public abstract class ChunkMapMixin {
             l = sectionPos.x();
             m = sectionPos.z();
         } else {
-            l = SectionPos.posToSectionCoord(viewable.getX());
-            m = SectionPos.posToSectionCoord(viewable.getZ());
+            l = SectionPos.posToSectionCoord(viewable.latGetX());
+            m = SectionPos.posToSectionCoord(viewable.latGetZ());
         }
 
         return isChunkInEuclideanRange(chunkPos, l, m, i);
@@ -84,8 +84,8 @@ public abstract class ChunkMapMixin {
             l = sectionPos.x();
             m = sectionPos.z();
         } else {
-            l = SectionPos.posToSectionCoord(viewable.getX());
-            m = SectionPos.posToSectionCoord(viewable.getZ());
+            l = SectionPos.posToSectionCoord(viewable.latGetX());
+            m = SectionPos.posToSectionCoord(viewable.latGetZ());
         }
 
         return isChunkOnEuclideanBorder(chunkPos.x, chunkPos.z, l, m, i);
@@ -105,7 +105,7 @@ public abstract class ChunkMapMixin {
     )
     private static double euclideanDistanceSquared_STORE2(double f, ChunkPos chunkPos, Entity entity) {
         double d = SectionPos.sectionToBlockCoord(chunkPos.x, 8);
-        return Math.min(f, d - ((IPlayer) entity).getViewable().getX());
+        return Math.min(f, d - ((IPlayer) entity).getViewable().latGetX());
     }
 
     @ModifyVariable(
@@ -115,7 +115,7 @@ public abstract class ChunkMapMixin {
     )
     private static double euclideanDistanceSquared_STORE3(double g, ChunkPos chunkPos, Entity entity) {
         double e = SectionPos.sectionToBlockCoord(chunkPos.z, 8);
-        return Math.min(g, e - ((IPlayer) entity).getViewable().getZ());
+        return Math.min(g, e - ((IPlayer) entity).getViewable().latGetZ());
     }
 
     // endregion euclideanDistanceSquared
@@ -219,8 +219,8 @@ public abstract class ChunkMapMixin {
         final var lastViewableChunkPos = player.getLastViewableSectionPos().chunk();
         final var lastServerPlayerChunkPos = serverPlayer.getLastSectionPos().chunk();
 
-        final var viewableSectionPosX = SectionPosUtil.posToSectionCoord(viewable.getX());
-        final var viewableSectionPosZ = SectionPosUtil.posToSectionCoord(viewable.getZ());
+        final var viewableSectionPosX = SectionPosUtil.posToSectionCoord(viewable.latGetX());
+        final var viewableSectionPosZ = SectionPosUtil.posToSectionCoord(viewable.latGetZ());
 
         if (!viewableChunkPos.equals(serverPlayerChunkPos) || !lastViewableChunkPos.equals(lastServerPlayerChunkPos)) {
             for (var x = viewableSectionPosX - this.viewDistance; x <= viewableSectionPosX + this.viewDistance; ++x) {
@@ -262,7 +262,7 @@ public abstract class ChunkMapMixin {
             )
     )
     private int updatePlayerPos_x(SectionPos sectionPos, ServerPlayer serverPlayer) {
-        return SectionPosUtil.posToSectionCoord(((IPlayer) serverPlayer).getViewable().getX());
+        return SectionPosUtil.posToSectionCoord(((IPlayer) serverPlayer).getViewable().latGetX());
     }
 
     @Redirect(
@@ -273,7 +273,7 @@ public abstract class ChunkMapMixin {
             )
     )
     private int updatePlayerPos_z(SectionPos sectionPos, ServerPlayer serverPlayer) {
-        return SectionPosUtil.posToSectionCoord(((IPlayer) serverPlayer).getViewable().getZ());
+        return SectionPosUtil.posToSectionCoord(((IPlayer) serverPlayer).getViewable().latGetZ());
     }
 
     // endregion updatePlayerPosition

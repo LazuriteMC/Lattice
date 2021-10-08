@@ -15,7 +15,8 @@ public abstract class TrackedEntityMixin {
     @Shadow @Final ServerEntity serverEntity;
 
     @ModifyVariable(
-            method = "updatePlayer",
+            method = "Lnet/minecraft/server/level/ChunkMap$TrackedEntity;updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V",
+//            method = "updatePlayer",
             at = @At(
                     value = "STORE",
                     ordinal = 1
@@ -23,9 +24,9 @@ public abstract class TrackedEntityMixin {
     )
     public double updatePlayer_STORE(double e, ServerPlayer serverPlayer) {
         final var serverEntityPosition = this.serverEntity.sentPos();
-        final var viewablePosition = ((IPlayer) serverPlayer).getViewable().getPosition();
+        final var viewablePosition = ((IPlayer) serverPlayer).getViewable().latGetPosition();
 
-        final var position = viewablePosition.sub(serverEntityPosition.x(), serverEntityPosition.y(), serverEntityPosition.z());
+        final var position = viewablePosition.subtract(serverEntityPosition);
 
         return Math.min(e, position.x() * position.x() + position.z() * position.z());
     }

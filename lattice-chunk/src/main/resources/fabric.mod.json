@@ -1,40 +1,44 @@
 {
   "schemaVersion": 1,
-  "id": "lattice-camera",
+  "id": "${archivesBaseName}",
   "version": "${version}",
-  "name": "Lattice Chunk",
-  "description": "",
-  "authors": [],
-  "contact": {},
-  "license": "MIT",
-  "icon": "",
   "environment": "*",
   "entrypoints": {
-    "client": [ "dev.lazurite.lattice.chunk.impl.client.LatticeChunkClient" ],
-    "main": [ "dev.lazurite.lattice.chunk.impl.common.LatticeChunkCommon" ]
+    "main": [ "dev.lazurite.lattice.chunk.impl.common.LatticeChunkCommon" ],
+    "client": [ "dev.lazurite.lattice.chunk.impl.client.LatticeChunkClient" ]
   },
   "mixins": [
     {
-      "environment": "client",
-      "config": "lattice-chunk.client.mixins.json"
+      "config": "lattice-chunk.common.mixins.json",
+      "environment": "*"
     },
     {
-      "environment": "*",
-      "config": "lattice-chunk.common.mixins.json"
+      "config": "lattice-chunk.client.mixins.json",
+      "environment": "client"
     }
   ],
+  "accessWidener": "lattice-chunk.accesswidener",
   "depends": {
-    "fabricloader": ">=0.11.7",
-    "fabric": "*",
-    "minecraft": "1.17.1"
+    "minecraft": "${min_minecraft_version}",
+    "fabricloader": "${min_loader_version}"
   },
+  "name": "${lattice_name}",
+  "description": "${description}",
+  "authors": [ "The Lazurite Team" ],
+  "contact": {
+    "homepage": "https://lazurite.dev",
+    "issues": "https://github.com/LazuriteMC/Lattice/issues",
+    "sources": "https://github.com/LazuriteMC/Lattice"
+  },
+  "license": "MIT",
+  "icon": "assets/${archivesBaseName}/icon.png",
   "custom": {
     "modmenu": {
       "links": {
         "modmenu.discord": "https://discord.gg/NNPPHN7b3P"
       },
-      "badges": [ "Library" ],
-      "parent": "lattice"
+      "badges": [ "library" ],
+      "parent": "${rootProject_name}"
     }
   }
 }

@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ChunkMap.class)
 public interface IChunkMapMixin {
 
-    @Accessor
-    static boolean callIsChunkInEuclideanRange(ChunkPos chunkPos, ServerPlayer serverPlayer, boolean bl, int i) {
-        return false;
-    }
+//    @Accessor
+//    static boolean callIsChunkInEuclideanRange(ChunkPos chunkPos, ServerPlayer serverPlayer, boolean bl, int i) {
+//        return false;
+//    }
 
 }

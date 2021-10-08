@@ -1,31 +1,52 @@
 plugins {
-    id "fabric-loom" version "${loom_version}"
-    id "maven-publish"
+    id "fabric-loom"
 }
 
-allprojects { project ->
+allprojects {
     apply plugin: "fabric-loom"
 
     sourceCompatibility = JavaVersion.VERSION_16
     targetCompatibility = JavaVersion.VERSION_16
 
-    group = rootProject.mod_group
-    archivesBaseName = project.mod_name
-    version = rootProject.mod_version
+    group = lattice_group
+    archivesBaseName = lattice_archivesBaseName
+    version = lattice_version
+
+    description = lattice_description
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         mappings loom.officialMojangMappings()
         modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
-
-        implementation "org.joml:joml:1.10.2"
     }
 
-    // what does this do?
     processResources {
-        inputs.property "version", rootProject.version
+        inputs.properties(
+                "min_minecraft_version": min_minecraft_version,
+                "min_loader_version": min_loader_version,
+
+                "rootProject_name": rootProject.name,
+
+                "archivesBaseName": project.archivesBaseName,
+                "version": project.version,
+
+                "lattice_name": lattice_name,
+                "description": project.description
+        )
+
         filesMatching("fabric.mod.json") {
-            expand "version": rootProject.version
+            expand(
+                    "min_minecraft_version": min_minecraft_version,
+                    "min_loader_version": min_loader_version,
+
+                    "rootProject_name": rootProject.name,
+
+                    "archivesBaseName": project.archivesBaseName,
+                    "version": project.version,
+
+                    "lattice_name": lattice_name,
+                    "description": project.description
+            )
         }
     }
 
@@ -35,9 +56,35 @@ allprojects { project ->
 
 }
 
+subprojects {
+
+    task copyAssets(type: Copy, description: "Copies and renames the asset folder from the rootProject to the subprojects.", group: "Lazurite") {
+        inputs.dir rootProject.layout.projectDirectory.dir("/src/main/resources/assets/" + rootProject.name)
+
+        from rootProject.layout.projectDirectory.dir("/src/main/resources/assets/" + rootProject.name)
+        into project.layout.projectDirectory.dir("/src/main/resources/assets/" + project.name)
+
+        include "**/*"
+    }
+
+    task deleteAssets(type: Delete, description: "Deletes the asset folder from the subprojects.", group: "Lazurite") {
+        delete project.layout.projectDirectory.dir("/src/main/resources/assets/")
+    }
+
+    processResources {
+        dependsOn copyAssets
+    }
+
+    // shouldn't sources jar depend on process resources... making this explicit dependency unnecessary?
+    // look into
+    sourcesJar {
+        dependsOn copyAssets
+    }
+
+}
+
 dependencies {
     include project(":lattice-camera")
     include project(":lattice-chunk")
     include project(":lattice-core")
-    include project(":lattice-entity")
 }

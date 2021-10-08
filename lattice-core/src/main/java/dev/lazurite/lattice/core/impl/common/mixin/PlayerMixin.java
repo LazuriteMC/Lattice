@@ -23,9 +23,9 @@ public abstract class PlayerMixin implements IPlayer {
 
     @Inject(
             method = "<init>",
-            at = @At("HEAD")
+            at = @At("RETURN")
     )
-    public void Player(Level level, BlockPos blockPos, float f, GameProfile gameProfile, CallbackInfo ci) {
+    public void init(Level level, BlockPos blockPos, float f, GameProfile gameProfile, CallbackInfo ci) {
         this.viewables.add((Viewable) this);
     }
 

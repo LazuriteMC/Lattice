@@ -22,7 +22,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockX(LocalPlayer localPlayer) {
-        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().getX());
+        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().latGetX());
     }
 
     /**
@@ -36,7 +36,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockY(LocalPlayer localPlayer) {
-        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().getX());
+        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().latGetX());
     }
 
     /**
@@ -50,7 +50,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockZ(LocalPlayer localPlayer) {
-        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().getX());
+        return BlockPosUtil.posToBlockCoord(((IPlayer) localPlayer).getViewable().latGetX());
     }
 
 }

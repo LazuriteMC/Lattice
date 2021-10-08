@@ -23,9 +23,9 @@ public final class BlockPosUtil {
 
     public static BlockPos of(Viewable viewable) {
         return new BlockPos(
-                BlockPosUtil.posToBlockCoord(viewable.getX()),
-                BlockPosUtil.posToBlockCoord(viewable.getY()),
-                BlockPosUtil.posToBlockCoord(viewable.getZ())
+                BlockPosUtil.posToBlockCoord(viewable.latGetX()),
+                BlockPosUtil.posToBlockCoord(viewable.latGetY()),
+                BlockPosUtil.posToBlockCoord(viewable.latGetZ())
         );
     }
 

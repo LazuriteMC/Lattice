@@ -19,7 +19,7 @@ public abstract class PlayerListMixin {
             )
     )
     public double broadcast_STORE0(double h, @Nullable Player player, double d) {
-        return Math.min(h, d - ((IPlayer) player).getViewable().getX());
+        return Math.min(h, d - ((IPlayer) player).getViewable().latGetX());
     }
 
     @ModifyVariable(
@@ -30,7 +30,7 @@ public abstract class PlayerListMixin {
             )
     )
     public double broadcast_STORE1(double j, @Nullable Player player, double d, double e) {
-        return Math.min(j, e - ((IPlayer) player).getViewable().getY());
+        return Math.min(j, e - ((IPlayer) player).getViewable().latGetY());
     }
 
     @ModifyVariable(
@@ -41,7 +41,7 @@ public abstract class PlayerListMixin {
             )
     )
     public double broadcast_STORE2(double k, @Nullable Player player, double d, double e, double f) {
-        return Math.min(k, f - ((IPlayer) player).getViewable().getZ());
+        return Math.min(k, f - ((IPlayer) player).getViewable().latGetZ());
     }
 
 }

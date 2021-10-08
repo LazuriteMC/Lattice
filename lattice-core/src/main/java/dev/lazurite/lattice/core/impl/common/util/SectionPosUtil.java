@@ -26,9 +26,9 @@ public final class SectionPosUtil {
 
     public static SectionPos of(Viewable viewable) {
         return SectionPos.of(
-                SectionPosUtil.posToSectionCoord(viewable.getX()),
-                SectionPosUtil.posToSectionCoord(viewable.getY()),
-                SectionPosUtil.posToSectionCoord(viewable.getZ())
+                SectionPosUtil.posToSectionCoord(viewable.latGetX()),
+                SectionPosUtil.posToSectionCoord(viewable.latGetY()),
+                SectionPosUtil.posToSectionCoord(viewable.latGetZ())
         );
     }
 
