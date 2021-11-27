@@ -1,28 +1,17 @@
 {
   "schemaVersion": 1,
-  "id": "lattice",
+  "id": "lattice-test",
   "version": "$version",
   "environment": "*",
   "entrypoints": {
-    "main": [ "dev.lazurite.lattice.impl.common.LatticeCommon" ],
-    "client": [ "dev.lazurite.lattice.impl.client.LatticeClient" ]
+    "main": [ "dev.lazurite.lattice.LatticeTest" ]
   },
-  "mixins": [
-    {
-      "config": "lattice.common.mixins.json",
-      "environment": "*"
-    },
-    {
-      "config": "lattice.client.mixins.json",
-      "environment": "client"
-    }
-  ],
-  "accessWidener": "lattice.accesswidener",
+  "mixins": [ "lattice.mixins.json" ],
   "depends": {
     "minecraft": "$min_minecraft_version",
     "fabricloader": "$min_fabric_loader_version"
   },
-  "name": "Lattice",
+  "name": "Lattice Test",
   "description": "description",
   "authors": [ "The Lazurite Team" ],
   "contact": {
@@ -36,8 +25,7 @@
     "modmenu": {
       "links": {
         "modmenu.discord": "https://discord.gg/NNPPHN7b3P"
-      },
-      "badges": [ "library" ]
+      }
     }
   }
 }

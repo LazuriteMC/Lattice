@@ -1,15 +1,11 @@
 pluginManagement {
     repositories {
+        maven {
+            name 'Fabric'
+            url 'https://maven.fabricmc.net'
+        }
         gradlePluginPortal()
-        maven { url = "https://maven.fabricmc.net/" }
-    }
-    plugins {
-        id "fabric-loom" version loom_version
     }
 }
 
-rootProject.name = lattice_archivesBaseName
-
-include "lattice-camera"
-include "lattice-chunk"
-include "lattice-core"
+rootProject.name = 'lattice'

@@ -1,90 +1,64 @@
 plugins {
-    id "fabric-loom"
+    id 'fabric-loom' version "$loom_version"
 }
 
-allprojects {
-    apply plugin: "fabric-loom"
+group 'dev.lazurite'
+version lattice_version
 
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
-
-    group = lattice_group
-    archivesBaseName = lattice_archivesBaseName
-    version = lattice_version
-
-    description = lattice_description
-
-    dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.officialMojangMappings()
-        modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+// done prior to dependencies so testmodImplementation exists
+sourceSets {
+    testmod {
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath
     }
-
-    processResources {
-        inputs.properties(
-                "min_minecraft_version": min_minecraft_version,
-                "min_loader_version": min_loader_version,
-
-                "rootProject_name": rootProject.name,
-
-                "archivesBaseName": project.archivesBaseName,
-                "version": project.version,
-
-                "lattice_name": lattice_name,
-                "description": project.description
-        )
-
-        filesMatching("fabric.mod.json") {
-            expand(
-                    "min_minecraft_version": min_minecraft_version,
-                    "min_loader_version": min_loader_version,
-
-                    "rootProject_name": rootProject.name,
-
-                    "archivesBaseName": project.archivesBaseName,
-                    "version": project.version,
-
-                    "lattice_name": lattice_name,
-                    "description": project.description
-            )
-        }
-    }
-
-    java {
-        withSourcesJar()
-    }
-
-}
-
-subprojects {
-
-    task copyAssets(type: Copy, description: "Copies and renames the asset folder from the rootProject to the subprojects.", group: "Lazurite") {
-        inputs.dir rootProject.layout.projectDirectory.dir("/src/main/resources/assets/" + rootProject.name)
-
-        from rootProject.layout.projectDirectory.dir("/src/main/resources/assets/" + rootProject.name)
-        into project.layout.projectDirectory.dir("/src/main/resources/assets/" + project.name)
-
-        include "**/*"
-    }
-
-    task deleteAssets(type: Delete, description: "Deletes the asset folder from the subprojects.", group: "Lazurite") {
-        delete project.layout.projectDirectory.dir("/src/main/resources/assets/")
-    }
-
-    processResources {
-        dependsOn copyAssets
-    }
-
-    // shouldn't sources jar depend on process resources... making this explicit dependency unnecessary?
-    // look into
-    sourcesJar {
-        dependsOn copyAssets
-    }
-
 }
 
 dependencies {
-    include project(":lattice-camera")
-    include project(":lattice-chunk")
-    include project(":lattice-core")
+    mappings loom.officialMojangMappings()
+    minecraft "com.mojang:minecraft:$minecraft_version"
+    modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
+
+    testmodImplementation sourceSets.main.output
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of 17
+
+    withSourcesJar()
+}
+
+loom {
+    accessWidenerPath = file 'src/main/resources/lattice.accessWidener'
+
+    runs {
+        testmodClient {
+            client()
+            name "Testmod Client"
+            source sourceSets.testmod
+        }
+
+        testmodServer {
+            server()
+            name "Testmod Server"
+            source sourceSets.testmod
+        }
+    }
+}
+
+tasks.withType(ProcessResources) {
+    inputs.properties(
+            'version': project.version,
+
+            'min_minecraft_version': min_minecraft_version,
+            'min_fabric_loader_version': min_fabric_loader_version
+    )
+
+    filesMatching 'fabric.mod.json', {
+        expand(
+                'version': project.version,
+
+                'min_minecraft_version': min_minecraft_version,
+                'min_fabric_loader_version': min_fabric_loader_version
+        )
+    }
 }
