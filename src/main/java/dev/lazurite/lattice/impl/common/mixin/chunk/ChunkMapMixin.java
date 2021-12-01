@@ -43,6 +43,7 @@ public abstract class ChunkMapMixin {
     private final List<ChunkPos> inRangeChunks = new ArrayList<>();
 
     @Shadow int viewDistance;
+    // TODO: Look into @Coerce
     @Shadow @Final private ChunkMap.DistanceManager distanceManager;
     @Shadow public static boolean isChunkInEuclideanRange(int i, int j, int k, int l, int m) { return false; }
     @Shadow protected abstract void updateChunkTracking(ServerPlayer serverPlayer, ChunkPos chunkPos, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, boolean bl, boolean bl2);
@@ -345,14 +346,6 @@ public abstract class ChunkMapMixin {
             )
     )
     public void move_updateChunkTracking(ChunkMap chunkMap, ServerPlayer serverPlayer, ChunkPos chunkPos, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, boolean bl, boolean bl2) {
-//        if (!bl && bl2 && !this.addedChunks.contains(chunkPos)) {
-//            this.addedChunks.add(chunkPos);
-//        } else if (bl && !bl2 && !this.removedChunks.contains(chunkPos)) {
-//            this.removedChunks.add(chunkPos);
-//        } else if (bl && bl2 && !this.inRangeChunks.contains(chunkPos)) {
-//            this.inRangeChunks.add(chunkPos);
-//        }
-
         if (bl && bl2) {
             this.inRangeChunks.add(chunkPos);
         } else if (!bl && bl2) {

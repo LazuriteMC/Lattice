@@ -1,6 +1,8 @@
 package dev.lazurite.lattice.impl.client.mixin.network;
 
-import dev.lazurite.lattice.impl.client.network.LatticeClientGamePacketListener;
+import dev.lazurite.lattice.api.LatticePlayer;
+import dev.lazurite.lattice.api.Viewable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,9 +23,20 @@ public abstract class ClientPacketListenerMixin {
             cancellable = true
     )
     public void handleCustomPayload(ClientboundCustomPayloadPacket clientboundCustomPayloadPacket, CallbackInfo ci) {
-        if (LatticeClientGamePacketListener.handle(clientboundCustomPayloadPacket)) {
-            clientboundCustomPayloadPacket.getData().release();
-            ci.cancel();
+        if (clientboundCustomPayloadPacket.getIdentifier().getNamespace().equals("lattice")) { // I'll have a constant in the future
+            if (clientboundCustomPayloadPacket.getIdentifier().getPath().equals("set_viewable")) { // only 1 packet so far
+                final var friendlyByteBuf = clientboundCustomPayloadPacket.getData();
+
+                final var player = Minecraft.getInstance().player;
+                final var latticePlayer = (LatticePlayer) player;
+
+                if (friendlyByteBuf.readBoolean()) { // can only be an entity (true in first friendlyByteBuf slot)
+                    latticePlayer.setViewable((Viewable) player.getLevel().getEntity(friendlyByteBuf.readInt()));
+
+                    clientboundCustomPayloadPacket.getData().release();
+                    ci.cancel();
+                }
+            }
         }
     }
 

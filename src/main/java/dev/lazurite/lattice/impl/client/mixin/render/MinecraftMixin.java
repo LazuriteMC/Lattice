@@ -1,7 +1,7 @@
 package dev.lazurite.lattice.impl.client.mixin.render;
 
 import dev.lazurite.lattice.api.LatticePlayer;
-import dev.lazurite.lattice.api.viewable.Viewable;
+import dev.lazurite.lattice.api.Viewable;
 import dev.lazurite.lattice.impl.common.util.BlockPosUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

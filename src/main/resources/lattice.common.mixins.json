@@ -9,7 +9,6 @@
     "chunk.ChunkMapMixin",
     "core.EntityMixin",
     "core.PlayerMixin",
-    "network.ServerGamePacketListenerImplMixin",
     "tracking.TrackedEntityMixin"
   ],
   "injectors": {

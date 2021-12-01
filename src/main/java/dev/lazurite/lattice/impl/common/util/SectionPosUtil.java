@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.impl.common.util;
 
-import dev.lazurite.lattice.api.viewable.Viewable;
+import dev.lazurite.lattice.api.Viewable;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 
