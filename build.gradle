@@ -23,7 +23,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of 17
+    toolchain.languageVersion = JavaLanguageVersion.of min_java_version
 
     withSourcesJar()
 }
@@ -50,6 +50,7 @@ tasks.withType(ProcessResources) {
     inputs.properties(
             'version': project.version,
 
+            'min_java_version': min_java_version,
             'min_minecraft_version': min_minecraft_version,
             'min_fabric_loader_version': min_fabric_loader_version
     )
@@ -58,6 +59,7 @@ tasks.withType(ProcessResources) {
         expand(
                 'version': project.version,
 
+                'min_java_version': min_java_version,
                 'min_minecraft_version': min_minecraft_version,
                 'min_fabric_loader_version': min_fabric_loader_version
         )

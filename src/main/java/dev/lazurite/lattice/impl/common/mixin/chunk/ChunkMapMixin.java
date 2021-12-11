@@ -1,5 +1,6 @@
 package dev.lazurite.lattice.impl.common.mixin.chunk;
 
+import com.google.common.collect.ImmutableList;
 import dev.lazurite.lattice.api.LatticePlayer;
 import dev.lazurite.lattice.impl.common.iapi.ILatticePlayer;
 import dev.lazurite.lattice.impl.common.util.ChunkPosUtil;
@@ -14,83 +15,51 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
-// TODO: This needs a cleanup
 @Mixin(ChunkMap.class)
 public abstract class ChunkMapMixin {
 
-    private SectionPos lastLastViewableSectionPos = SectionPos.of(0, 0, 0);
-    private SectionPos lastLastSectionPos = SectionPos.of(0, 0, 0);
+    /**
+     * @see #updatePlayerPos_HEAD
+     * @see #updatePlayerStatus_removePlayer
+     * @see #move_removePlayer
+     * @see #move_TAIL
+     */
+    private SectionPos
+            lastLastSectionPos = SectionPos.of(0, 0, 0),
+            lastLastViewableSectionPos = SectionPos.of(0, 0, 0);
+    /**
+     * @see #getPlayers_getLastSectionPos
+     * @see #getPlayers_isChunkOnRangeBorder
+     * @see #getPlayers_isChunkInRange
+     */
+    private ServerPlayer serverPlayer;
 
     /**
-     * @see ChunkMapMixin#updatePlayerStatus_HEAD(ServerPlayer, boolean, CallbackInfo)
-     * @see ChunkMapMixin#updatePlayerStatus_updateChunkTracking(ChunkMap, ServerPlayer, ChunkPos, MutableObject, boolean, boolean)
-     * @see ChunkMapMixin#updatePlayerStatus_TAIL(ServerPlayer, boolean, CallbackInfo)
+     * @see #updatePlayerStatus_HEAD
+     * @see #updatePlayerStatus_updateChunkTracking
+     * @see #updatePlayerStatus_TAIL
      */
-    private final List<ChunkPos> queuedChunks = new ArrayList<>();
-
-    private final List<ChunkPos> addedChunks = new ArrayList<>();
-    private final List<ChunkPos> removedChunks = new ArrayList<>();
-    private final List<ChunkPos> inRangeChunks = new ArrayList<>();
+    private final List<ChunkPos>
+            queuedChunks = new ArrayList<>(),
+            addedChunks = new ArrayList<>(),
+            removedChunks = new ArrayList<>(),
+            inRangeChunks = new ArrayList<>();
 
     @Shadow int viewDistance;
-    // TODO: Look into @Coerce
     @Shadow @Final private ChunkMap.DistanceManager distanceManager;
-    @Shadow public static boolean isChunkInEuclideanRange(int i, int j, int k, int l, int m) { return false; }
+    @Shadow public static boolean isChunkInRange(int i, int j, int k, int l, int m) { return false; }
+    @Shadow private static boolean isChunkOnRangeBorder(int i, int j, int k, int l, int m) { return false; }
     @Shadow protected abstract void updateChunkTracking(ServerPlayer serverPlayer, ChunkPos chunkPos, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, boolean bl, boolean bl2);
-    @Shadow private static boolean isChunkInEuclideanRange(ChunkPos chunkPos, int i, int j, int k) { return false; }
-    @Shadow private static boolean isChunkOnEuclideanBorder(int i, int j, int k, int l, int m) { return false; }
-
-    private static boolean isChunkInEuclideanRangeViewable(ChunkPos chunkPos, ServerPlayer serverPlayer, boolean bl, int i) {
-        final var player = ((ILatticePlayer) serverPlayer);
-        final var viewable = player.getViewable();
-
-        final int j;
-        final int k;
-
-        if (bl) {
-            SectionPos sectionPos = player.getLastViewableSectionPos();
-
-            j = sectionPos.x();
-            k = sectionPos.z();
-        } else {
-            // use posToSectionCoord since viewable doesn't have a BlockPos
-            j = SectionPos.posToSectionCoord(viewable.getViewableX());
-            k = SectionPos.posToSectionCoord(viewable.getViewableZ());
-        }
-
-        return isChunkInEuclideanRange(chunkPos, j, k, i);
-    }
-
-    private static boolean isChunkOnEuclideanBorderViewable(ChunkPos chunkPos, ServerPlayer serverPlayer, boolean bl, int i) {
-        final var player = ((ILatticePlayer) serverPlayer);
-        final var viewable = player.getViewable();
-
-        final int j;
-        final int k;
-
-        if (bl) {
-            SectionPos sectionPos = player.getLastViewableSectionPos();
-
-            j = sectionPos.x();
-            k = sectionPos.z();
-        } else {
-            // use posToSectionCoord since viewable doesn't have a BlockPos
-            j = SectionPos.posToSectionCoord(viewable.getViewableX());
-            k = SectionPos.posToSectionCoord(viewable.getViewableZ());
-        }
-
-        return isChunkOnEuclideanBorder(chunkPos.x, chunkPos.z, j, k, i);
-    }
 
     // region euclideanDistanceSquared
     /*
@@ -106,7 +75,7 @@ public abstract class ChunkMapMixin {
     )
     private static double euclideanDistanceSquared_STORE2(double f, ChunkPos chunkPos, Entity entity) {
         double d = SectionPos.sectionToBlockCoord(chunkPos.x, 8);
-        return Math.min(f, d - ((ILatticePlayer) entity).getViewable().getViewableX());
+        return Math.min(f, d - ((LatticePlayer) entity).getViewable().getViewableX());
     }
 
     @ModifyVariable(
@@ -116,36 +85,34 @@ public abstract class ChunkMapMixin {
     )
     private static double euclideanDistanceSquared_STORE3(double g, ChunkPos chunkPos, Entity entity) {
         double e = SectionPos.sectionToBlockCoord(chunkPos.z, 8);
-        return Math.min(g, e - ((ILatticePlayer) entity).getViewable().getViewableZ());
+        return Math.min(g, e - ((LatticePlayer) entity).getViewable().getViewableZ());
     }
 
     // endregion euclideanDistanceSquared
 
-    // region isChunkInEuclideanRange
+    // region setViewDistance
 
-    @Inject(
-            method = "isChunkInEuclideanRange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/server/level/ServerPlayer;ZI)Z",
-            at = @At("TAIL"),
-            cancellable = true
+    @ModifyVariable(
+            method = "lambda$setViewDistance$41",
+            at = @At("STORE"),
+            ordinal = 0
     )
-    private static void isChunkInEuclideanRange_RETURN(ChunkPos chunkPos, ServerPlayer serverPlayer, boolean bl, int i, CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(cir.getReturnValueZ() || isChunkInEuclideanRangeViewable(chunkPos, serverPlayer, bl, i));
+    protected boolean lambda$setViewable$41_STORE0(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
+        final var lastViewableSectionPos = ((ILatticePlayer) serverPlayer).getLastViewableSectionPos();
+        return bl || isChunkInRange(chunkPos.x, chunkPos.z, lastViewableSectionPos.x(), lastViewableSectionPos.z(), k);
     }
 
-    // endregion isChunkInEuclideanRange
-
-    // region isChunkOnEuclideanBorder
-
-    @Inject(
-            method = "isChunkOnEuclideanBorder(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/server/level/ServerPlayer;ZI)Z",
-            at = @At("TAIL"),
-            cancellable = true
+    @ModifyVariable(
+            method = "lambda$setViewDistance$41",
+            at = @At("STORE"),
+            ordinal = 1
     )
-    private static void isChunkOnEuclideanBorder_RETURN(ChunkPos chunkPos, ServerPlayer serverPlayer, boolean bl, int i, CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(cir.getReturnValueZ() || isChunkOnEuclideanBorderViewable(chunkPos, serverPlayer, bl, i));
+    protected boolean lambda$setViewable$41_STORE1(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
+        final var lastViewableSectionPos = ((ILatticePlayer) serverPlayer).getLastViewableSectionPos();
+        return bl || isChunkInRange(chunkPos.x, chunkPos.z, lastViewableSectionPos.x(), lastViewableSectionPos.z(), this.viewDistance);
     }
 
-    // endregion isChunkOnEuclideanBorder
+    // endregion setViewDistance
 
     // region updatePlayerStatus
     /*
@@ -159,9 +126,6 @@ public abstract class ChunkMapMixin {
     )
     void updatePlayerStatus_HEAD(ServerPlayer serverPlayer, boolean bl, CallbackInfo ci) {
         this.queuedChunks.clear();
-
-        this.lastLastSectionPos = serverPlayer.getLastSectionPos();
-        this.lastLastViewableSectionPos = ((ILatticePlayer) serverPlayer).getLastViewableSectionPos();
     }
 
     @Inject(
@@ -173,13 +137,10 @@ public abstract class ChunkMapMixin {
             )
     )
     void updatePlayerStatus_addPlayer(ServerPlayer serverPlayer, boolean bl, CallbackInfo ci) {
-        final var player = ((ILatticePlayer) serverPlayer);
+        final var viewable = ((LatticePlayer) serverPlayer).getViewable();
 
-        final var viewableChunkPos = ChunkPosUtil.of(player.getViewable());
-        final var serverPlayerChunkPos = ChunkPosUtil.of(serverPlayer);
-
-        if (!viewableChunkPos.equals(serverPlayerChunkPos)) {
-            this.distanceManager.addPlayer(SectionPosUtil.of(player.getViewable()), serverPlayer);
+        if (!ChunkPosUtil.of(viewable).equals(ChunkPosUtil.of(serverPlayer))) {
+            this.distanceManager.addPlayer(SectionPosUtil.of(viewable), serverPlayer);
         }
     }
 
@@ -192,7 +153,7 @@ public abstract class ChunkMapMixin {
             )
     )
     void updatePlayerStatus_removePlayer(ServerPlayer serverPlayer, boolean bl, CallbackInfo ci) {
-        if (!this.lastLastViewableSectionPos.equals(this.lastLastSectionPos)) {
+        if (!this.lastLastViewableSectionPos.chunk().equals(this.lastLastSectionPos.chunk())) {
             this.distanceManager.removePlayer(this.lastLastViewableSectionPos, serverPlayer);
         }
     }
@@ -219,11 +180,11 @@ public abstract class ChunkMapMixin {
         final var viewableSectionPosZ = SectionPosUtil.posToSectionCoord(viewable.getViewableZ());
 
         if (!ChunkPosUtil.of(viewable).equals(ChunkPosUtil.of(serverPlayer))) {
-            for (var x = viewableSectionPosX - this.viewDistance; x <= viewableSectionPosX + this.viewDistance; ++x) {
-                for (var z = viewableSectionPosZ - this.viewDistance; z <= viewableSectionPosZ + this.viewDistance; ++z) {
+            for (var x = viewableSectionPosX - this.viewDistance - 1; x <= viewableSectionPosX + this.viewDistance + 1; ++x) {
+                for (var z = viewableSectionPosZ - this.viewDistance - 1; z <= viewableSectionPosZ + this.viewDistance + 1; ++z) {
                     final var chunkPos = new ChunkPos(x, z);
 
-                    if (isChunkInEuclideanRange(x, z, viewableSectionPosX, viewableSectionPosZ, this.viewDistance) && !this.queuedChunks.contains(chunkPos)) {
+                    if (isChunkInRange(x, z, viewableSectionPosX, viewableSectionPosZ, this.viewDistance) && !this.queuedChunks.contains(chunkPos)) {
                         this.queuedChunks.add(chunkPos);
                     }
                 }
@@ -249,7 +210,7 @@ public abstract class ChunkMapMixin {
         final var player = ((ILatticePlayer) serverPlayer);
 
         this.lastLastSectionPos = serverPlayer.getLastSectionPos();
-        this.lastLastViewableSectionPos = player.getLastViewableSectionPos(); // preserve for later comparison
+        this.lastLastViewableSectionPos = player.getLastViewableSectionPos();
 
         player.setLastViewableSectionPos(SectionPosUtil.of(player.getViewable()));
     }
@@ -294,6 +255,8 @@ public abstract class ChunkMapMixin {
         this.inRangeChunks.clear();
     }
 
+    // bl3 is no longer used after this point
+    // if it were, I would have to set it back to its original value
     @ModifyVariable(
             method = "move",
             at = @At("LOAD"),
@@ -313,11 +276,8 @@ public abstract class ChunkMapMixin {
             )
     )
     public void move_removePlayer(ServerPlayer serverPlayer, CallbackInfo ci) {
-        final var lastViewableSectionPos = this.lastLastViewableSectionPos;
-        final var lastServerPlayerSectionPos = this.lastLastSectionPos;
-
-        if (!lastViewableSectionPos.chunk().equals(lastServerPlayerSectionPos.chunk())) {
-            this.distanceManager.removePlayer(lastViewableSectionPos, serverPlayer);
+        if (!this.lastLastViewableSectionPos.chunk().equals(this.lastLastSectionPos.chunk())) {
+            this.distanceManager.removePlayer(this.lastLastViewableSectionPos, serverPlayer);
         }
     }
 
@@ -330,11 +290,10 @@ public abstract class ChunkMapMixin {
             )
     )
     public void move_addPlayer(ServerPlayer serverPlayer, CallbackInfo ci) {
-        final var viewableSectionPos = SectionPosUtil.of(((LatticePlayer) serverPlayer).getViewable());
-        final var serverPlayerSectionPos = SectionPos.of(serverPlayer);
+        final var viewable = ((LatticePlayer) serverPlayer).getViewable();
 
-        if (!viewableSectionPos.chunk().equals(serverPlayerSectionPos.chunk())) {
-            this.distanceManager.addPlayer(viewableSectionPos, serverPlayer);
+        if (!ChunkPosUtil.of(viewable).equals(ChunkPosUtil.of(serverPlayer))) {
+            this.distanceManager.addPlayer(SectionPosUtil.of(viewable), serverPlayer);
         }
     }
 
@@ -360,9 +319,7 @@ public abstract class ChunkMapMixin {
             at = @At("TAIL")
     )
     public void move_TAIL(ServerPlayer serverPlayer, CallbackInfo ci) {
-        final var player = ((ILatticePlayer) serverPlayer);
-
-        final var viewableSectionPos = SectionPosUtil.of(player.getViewable());
+        final var viewableSectionPos = SectionPosUtil.of(((LatticePlayer) serverPlayer).getViewable());
         final var serverPlayerSectionPos = SectionPos.of(serverPlayer);
 
         final var lastViewableSectionPos = this.lastLastViewableSectionPos;
@@ -372,12 +329,12 @@ public abstract class ChunkMapMixin {
         if (!viewableSectionPos.chunk().equals(serverPlayerSectionPos.chunk()) || !lastViewableSectionPos.chunk().equals(lastServerPlayerSectionPos.chunk())) {
 
             if (Math.abs(lastViewableSectionPos.getX() - viewableSectionPos.getX()) <= this.viewDistance * 2 && Math.abs(lastViewableSectionPos.getZ() - viewableSectionPos.getZ()) <= this.viewDistance * 2) {
-                for (var x = Math.min(viewableSectionPos.getX(), lastViewableSectionPos.getX()) - this.viewDistance; x <= Math.max(viewableSectionPos.getX(), lastViewableSectionPos.getX()) + this.viewDistance; ++x) {
-                    for (var z = Math.min(viewableSectionPos.getZ(), lastViewableSectionPos.getZ()) - this.viewDistance; z <= Math.max(viewableSectionPos.getZ(), lastViewableSectionPos.getZ()) + this.viewDistance; ++z) {
-                        ChunkPos chunkPos = new ChunkPos(x, z);
+                for (var x = Math.min(viewableSectionPos.getX(), lastViewableSectionPos.getX()) - this.viewDistance - 1; x <= Math.max(viewableSectionPos.getX(), lastViewableSectionPos.getX()) + this.viewDistance + 1; ++x) {
+                    for (var z = Math.min(viewableSectionPos.getZ(), lastViewableSectionPos.getZ()) - this.viewDistance - 1; z <= Math.max(viewableSectionPos.getZ(), lastViewableSectionPos.getZ()) + this.viewDistance + 1; ++z) {
+                        boolean bl = isChunkInRange(x, z, lastViewableSectionPos.x(), lastViewableSectionPos.z(), this.viewDistance);
+                        boolean bl2 = isChunkInRange(x, z, viewableSectionPos.x(), viewableSectionPos.z(), this.viewDistance);
 
-                        boolean bl = isChunkInEuclideanRange(chunkPos, lastViewableSectionPos.getX(), lastViewableSectionPos.getZ(), this.viewDistance);
-                        boolean bl2 = isChunkInEuclideanRange(chunkPos, viewableSectionPos.getX(), viewableSectionPos.getZ(), this.viewDistance);
+                        ChunkPos chunkPos = new ChunkPos(x, z);
 
                         if (bl && bl2) {
                             this.inRangeChunks.add(chunkPos);
@@ -389,21 +346,21 @@ public abstract class ChunkMapMixin {
                     }
                 }
             } else {
-                for (var x = lastViewableSectionPos.getX() - this.viewDistance; x <= lastViewableSectionPos.getX() + this.viewDistance; ++x) {
-                    for (var z = lastViewableSectionPos.getZ() - this.viewDistance; z <= lastViewableSectionPos.getZ() + this.viewDistance; ++z) {
+                for (var x = lastViewableSectionPos.getX() - this.viewDistance - 1; x <= lastViewableSectionPos.getX() + this.viewDistance + 1; ++x) {
+                    for (var z = lastViewableSectionPos.getZ() - this.viewDistance - 1; z <= lastViewableSectionPos.getZ() + this.viewDistance + 1; ++z) {
                         final var chunkPos = new ChunkPos(x, z);
 
-                        if (isChunkInEuclideanRange(x, z, lastViewableSectionPos.getX(), lastViewableSectionPos.getZ(), this.viewDistance) && !this.removedChunks.contains(chunkPos)) {
+                        if (isChunkInRange(x, z, lastViewableSectionPos.getX(), lastViewableSectionPos.getZ(), this.viewDistance) && !this.removedChunks.contains(chunkPos)) {
                             this.removedChunks.add(chunkPos);
                         }
                     }
                 }
 
-                for (var x = viewableSectionPos.getX() - this.viewDistance; x <= viewableSectionPos.getX() + this.viewDistance; ++x) {
-                    for (var z = viewableSectionPos.getZ() - this.viewDistance; z <= viewableSectionPos.getZ() + this.viewDistance; ++z) {
+                for (var x = viewableSectionPos.getX() - this.viewDistance - 1; x <= viewableSectionPos.getX() + this.viewDistance + 1; ++x) {
+                    for (var z = viewableSectionPos.getZ() - this.viewDistance - 1; z <= viewableSectionPos.getZ() + this.viewDistance + 1; ++z) {
                         final var chunkPos = new ChunkPos(x, z);
 
-                        if (isChunkOnEuclideanBorder(x, z, viewableSectionPos.getX(), viewableSectionPos.getZ(), this.viewDistance) && !this.addedChunks.contains(chunkPos)) {
+                        if (isChunkOnRangeBorder(x, z, viewableSectionPos.getX(), viewableSectionPos.getZ(), this.viewDistance) && !this.addedChunks.contains(chunkPos)) {
                             this.addedChunks.add(chunkPos);
                         }
                     }
@@ -421,5 +378,45 @@ public abstract class ChunkMapMixin {
     }
 
     // endregion move
+
+    // region getPlayers
+
+    @Inject(
+            method = "getPlayers",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ServerPlayer;getLastSectionPos()Lnet/minecraft/core/SectionPos;"
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    public void getPlayers_getLastSectionPos(ChunkPos chunkPos, boolean bl, CallbackInfoReturnable<List<ServerPlayer>> cir, Set<ServerPlayer> set, ImmutableList.Builder<ServerPlayer> builder, Iterator<ServerPlayer> var5, ServerPlayer serverPlayer) {
+        this.serverPlayer = serverPlayer;
+    }
+
+    @Redirect(
+            method = "getPlayers",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ChunkMap;isChunkOnRangeBorder(IIIII)Z"
+            )
+    )
+    public boolean getPlayers_isChunkOnRangeBorder(int i, int j, int k, int l, int m) {
+        final var lastViewableSectionPos = ((ILatticePlayer) this.serverPlayer).getLastViewableSectionPos();
+        return isChunkOnRangeBorder(i, j, k, l, m) || isChunkOnRangeBorder(i, j, lastViewableSectionPos.x(), lastViewableSectionPos.z(), m);
+    }
+
+    @Redirect(
+            method = "getPlayers",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ChunkMap;isChunkInRange(IIIII)Z"
+            )
+    )
+    public boolean getPlayers_isChunkInRange(int i, int j, int k, int l, int m) {
+        final var lastViewableSectionPos = ((ILatticePlayer) this.serverPlayer).getLastViewableSectionPos();
+        return isChunkInRange(i, j, k, l, m) || isChunkInRange(i, j, lastViewableSectionPos.x(), lastViewableSectionPos.z(), m);
+    }
+
+    // endregion getPlayers
 
 }

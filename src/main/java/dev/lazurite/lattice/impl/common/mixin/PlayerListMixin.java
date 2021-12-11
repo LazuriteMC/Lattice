@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.impl.common.mixin;
 
-import dev.lazurite.lattice.impl.common.iapi.ILatticePlayer;
+import dev.lazurite.lattice.api.LatticePlayer;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(PlayerList.class)
 public abstract class PlayerListMixin {
 
-    // not thread safe at all
     private ServerPlayer serverPlayer;
 
     @Inject(
@@ -33,7 +32,6 @@ public abstract class PlayerListMixin {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     public void broadcast(@Nullable Player player, double d, double e, double f, double g, ResourceKey<Level> resourceKey, Packet<?> packet, CallbackInfo ci, int i, ServerPlayer serverPlayer) {
-        // not thread safe at all
         this.serverPlayer = serverPlayer;
     }
 
@@ -46,7 +44,7 @@ public abstract class PlayerListMixin {
             ordinal = 4
     )
     public double broadcast_STORE0(double h, @Nullable Player player, double d) {
-        return Math.min(h, d - ((ILatticePlayer) this.serverPlayer).getViewable().getViewableX());
+        return Math.min(h, d - ((LatticePlayer) this.serverPlayer).getViewable().getViewableX());
     }
 
     @ModifyVariable(
@@ -58,7 +56,7 @@ public abstract class PlayerListMixin {
             ordinal = 5
     )
     public double broadcast_STORE1(double j, @Nullable Player player, double d, double e) {
-        return Math.min(j, e - ((ILatticePlayer) this.serverPlayer).getViewable().getViewableY());
+        return Math.min(j, e - ((LatticePlayer) this.serverPlayer).getViewable().getViewableY());
     }
 
     @ModifyVariable(
@@ -70,7 +68,7 @@ public abstract class PlayerListMixin {
             ordinal = 6
     )
     public double broadcast_STORE2(double k, @Nullable Player player, double d, double e, double f) {
-        return Math.min(k, f - ((ILatticePlayer) this.serverPlayer).getViewable().getViewableZ());
+        return Math.min(k, f - ((LatticePlayer) this.serverPlayer).getViewable().getViewableZ());
     }
 
 }
