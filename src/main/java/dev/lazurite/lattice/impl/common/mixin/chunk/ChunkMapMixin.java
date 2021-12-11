@@ -93,9 +93,10 @@ public abstract class ChunkMapMixin {
     // region setViewDistance
 
     @ModifyVariable(
-            method = "lambda$setViewDistance$41",
+            method = { "lambda$setViewDistance$41", "method_17219" }, // lambda refmap not generated
             at = @At("STORE"),
-            ordinal = 0
+            ordinal = 0,
+            require = 1
     )
     protected boolean lambda$setViewDistance$41_STORE0(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
         final var lastViewableSectionPos = ((ILatticePlayer) serverPlayer).getLastViewableSectionPos();
@@ -103,9 +104,10 @@ public abstract class ChunkMapMixin {
     }
 
     @ModifyVariable(
-            method = "lambda$setViewDistance$41",
+            method = { "lambda$setViewDistance$41", "method_17219" }, // lambda refmap not generated
             at = @At("STORE"),
-            ordinal = 1
+            ordinal = 1,
+            require = 1
     )
     protected boolean lambda$setViewDistance$41_STORE1(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
         final var lastViewableSectionPos = ((ILatticePlayer) serverPlayer).getLastViewableSectionPos();
