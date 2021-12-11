@@ -97,7 +97,7 @@ public abstract class ChunkMapMixin {
             at = @At("STORE"),
             ordinal = 0
     )
-    protected boolean lambda$setViewable$41_STORE0(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
+    protected boolean lambda$setViewDistance$41_STORE0(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
         final var lastViewableSectionPos = ((ILatticePlayer) serverPlayer).getLastViewableSectionPos();
         return bl || isChunkInRange(chunkPos.x, chunkPos.z, lastViewableSectionPos.x(), lastViewableSectionPos.z(), k);
     }
@@ -107,7 +107,7 @@ public abstract class ChunkMapMixin {
             at = @At("STORE"),
             ordinal = 1
     )
-    protected boolean lambda$setViewable$41_STORE1(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
+    protected boolean lambda$setViewDistance$41_STORE1(boolean bl, ChunkPos chunkPos, int k, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, ServerPlayer serverPlayer) {
         final var lastViewableSectionPos = ((ILatticePlayer) serverPlayer).getLastViewableSectionPos();
         return bl || isChunkInRange(chunkPos.x, chunkPos.z, lastViewableSectionPos.x(), lastViewableSectionPos.z(), this.viewDistance);
     }
