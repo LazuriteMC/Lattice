@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-// TODO: There are probably many more places in PlayerList that need changing
 @Mixin(PlayerList.class)
 public abstract class PlayerListMixin {
 
