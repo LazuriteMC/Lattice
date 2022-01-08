@@ -3,8 +3,8 @@ package dev.lazurite.lattice.impl.common.mixin.chunk;
 import com.google.common.collect.ImmutableList;
 import dev.lazurite.lattice.api.LatticePlayer;
 import dev.lazurite.lattice.impl.common.iapi.ILatticePlayer;
-import dev.lazurite.lattice.impl.common.util.ChunkPosUtil;
-import dev.lazurite.lattice.impl.common.util.SectionPosUtil;
+import dev.lazurite.toolbox.api.util.ChunkPosUtil;
+import dev.lazurite.toolbox.api.util.SectionPosUtil;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.level.ChunkMap;
@@ -141,8 +141,8 @@ public abstract class ChunkMapMixin {
     void updatePlayerStatus_addPlayer(ServerPlayer serverPlayer, boolean bl, CallbackInfo ci) {
         final var viewable = ((LatticePlayer) serverPlayer).getViewable();
 
-        if (!ChunkPosUtil.of(viewable).equals(ChunkPosUtil.of(serverPlayer))) {
-            this.distanceManager.addPlayer(SectionPosUtil.of(viewable), serverPlayer);
+        if (!ChunkPosUtil.of(viewable.getViewablePosition()).equals(ChunkPosUtil.of(serverPlayer))) {
+            this.distanceManager.addPlayer(SectionPosUtil.of(viewable.getViewablePosition()), serverPlayer);
         }
     }
 
@@ -181,7 +181,7 @@ public abstract class ChunkMapMixin {
         final var viewableSectionPosX = SectionPosUtil.posToSectionCoord(viewable.getViewableX());
         final var viewableSectionPosZ = SectionPosUtil.posToSectionCoord(viewable.getViewableZ());
 
-        if (!ChunkPosUtil.of(viewable).equals(ChunkPosUtil.of(serverPlayer))) {
+        if (!ChunkPosUtil.of(viewable.getViewablePosition()).equals(ChunkPosUtil.of(serverPlayer))) {
             for (var x = viewableSectionPosX - this.viewDistance - 1; x <= viewableSectionPosX + this.viewDistance + 1; ++x) {
                 for (var z = viewableSectionPosZ - this.viewDistance - 1; z <= viewableSectionPosZ + this.viewDistance + 1; ++z) {
                     final var chunkPos = new ChunkPos(x, z);
@@ -214,7 +214,7 @@ public abstract class ChunkMapMixin {
         this.lastLastSectionPos = serverPlayer.getLastSectionPos();
         this.lastLastViewableSectionPos = player.getLastViewableSectionPos();
 
-        player.setLastViewableSectionPos(SectionPosUtil.of(player.getViewable()));
+        player.setLastViewableSectionPos(SectionPosUtil.of(player.getViewable().getViewablePosition()));
     }
 
     @Redirect(
@@ -266,7 +266,7 @@ public abstract class ChunkMapMixin {
     )
     public boolean move_LOAD(boolean bl3, ServerPlayer serverPlayer) {
         final var player = ((ILatticePlayer) serverPlayer);
-        return bl3 || SectionPosUtil.of(player.getViewable()).asLong() != player.getLastViewableSectionPos().asLong();
+        return bl3 || SectionPosUtil.of(player.getViewable().getViewablePosition()).asLong() != player.getLastViewableSectionPos().asLong();
     }
 
     @Inject(
@@ -294,8 +294,8 @@ public abstract class ChunkMapMixin {
     public void move_addPlayer(ServerPlayer serverPlayer, CallbackInfo ci) {
         final var viewable = ((LatticePlayer) serverPlayer).getViewable();
 
-        if (!ChunkPosUtil.of(viewable).equals(ChunkPosUtil.of(serverPlayer))) {
-            this.distanceManager.addPlayer(SectionPosUtil.of(viewable), serverPlayer);
+        if (!ChunkPosUtil.of(viewable.getViewablePosition()).equals(ChunkPosUtil.of(serverPlayer))) {
+            this.distanceManager.addPlayer(SectionPosUtil.of(viewable.getViewablePosition()), serverPlayer);
         }
     }
 
@@ -321,7 +321,7 @@ public abstract class ChunkMapMixin {
             at = @At("TAIL")
     )
     public void move_TAIL(ServerPlayer serverPlayer, CallbackInfo ci) {
-        final var viewableSectionPos = SectionPosUtil.of(((LatticePlayer) serverPlayer).getViewable());
+        final var viewableSectionPos = SectionPosUtil.of(((LatticePlayer) serverPlayer).getViewable().getViewablePosition());
         final var serverPlayerSectionPos = SectionPos.of(serverPlayer);
 
         final var lastViewableSectionPos = this.lastLastViewableSectionPos;

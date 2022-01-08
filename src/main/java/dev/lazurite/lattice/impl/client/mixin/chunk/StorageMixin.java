@@ -1,6 +1,6 @@
 package dev.lazurite.lattice.impl.client.mixin.chunk;
 
-import dev.lazurite.lattice.impl.common.util.ChunkPosUtil;
+import dev.lazurite.toolbox.api.util.ChunkPosUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.level.ChunkPos;
