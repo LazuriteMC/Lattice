@@ -2,6 +2,7 @@ package dev.lazurite.lattice.impl.client.mixin.chunk;
 
 import dev.lazurite.toolbox.api.util.ChunkPosUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -15,6 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
+/**
+ * Modifies {@link ClientChunkCache.Storage} to allow for two chunk "regions."
+ */
 @Mixin(targets = "net.minecraft.client.multiplayer.ClientChunkCache$Storage")
 public abstract class StorageMixin {
 
@@ -22,18 +26,17 @@ public abstract class StorageMixin {
     @Shadow @Final AtomicReferenceArray<LevelChunk> chunks;
 
     /**
-     * Returns {@code true} if the {@link ChunkPos} is within the range of the {@link LocalPlayer}.
-     * @see StorageMixin#inRange(int, int, CallbackInfoReturnable)
+     * Like {@link ClientChunkCache.Storage#inRange(int, int)} but uses the {@link LocalPlayer}'s {@link ChunkPos}
+     * instead of {@link ClientChunkCache.Storage#viewCenterX} and {@link ClientChunkCache.Storage#viewCenterZ}.
+     * @see ClientChunkCache.Storage#inRange(int, int)
      */
-    private boolean inPlayerRange(int i, int j) {
-        final var player = Minecraft.getInstance().player;
-
-        ChunkPos chunkPos = ChunkPosUtil.of(player);
+    private boolean inPlayerRange(final int i, final int j) {
+        ChunkPos chunkPos = ChunkPosUtil.of(Minecraft.getInstance().player);
         return Math.abs(i - chunkPos.x) <= this.chunkRadius && Math.abs(j - chunkPos.z) <= this.chunkRadius;
     }
 
     /**
-     * Doubles the size of the {@link net.minecraft.client.multiplayer.ClientChunkCache.Storage#chunks} {@link AtomicReferenceArray}.
+     * Doubles the size of the {@link ClientChunkCache.Storage#chunks}.
      * Allows for the storing of two chunk "regions."
      */
     @ModifyArg(
@@ -48,7 +51,7 @@ public abstract class StorageMixin {
     }
 
     /**
-     * Allows getting indicies for the second half of the {@link net.minecraft.client.multiplayer.ClientChunkCache.Storage#chunks} {@link AtomicReferenceArray}.
+     * Allows getting indicies for the second half of the {@link ClientChunkCache.Storage#chunks}.
      * @see StorageMixin#init_init(int)
      */
     @Inject(
@@ -63,8 +66,10 @@ public abstract class StorageMixin {
     }
 
     /**
-     * Returns true if the {@link ChunkPos} is within range of the view center or the {@link LocalPlayer}.
+     * Modifies {@link ClientChunkCache.Storage#inRange(int, int)} to use the {@link LocalPlayer}'s {@link ChunkPos}
+     * as well as {@link ClientChunkCache.Storage#viewCenterX} and {@link ClientChunkCache.Storage#viewCenterZ}.
      * @see StorageMixin#inPlayerRange(int, int)
+     * @see ClientChunkCache.Storage#inRange(int, int)
      */
     @Inject(
             method = "inRange",

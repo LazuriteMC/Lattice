@@ -27,7 +27,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
 
     modImplementation "dev.lazurite:toolbox-fabric:$toolbox_version"
-    include "dev.lazurite:toolbox-fabric:$toolbox_version"
 
     testmodImplementation sourceSets.main.output
 }
@@ -35,6 +34,10 @@ dependencies {
 java {
     toolchain.languageVersion = JavaLanguageVersion.of min_java_version
     withSourcesJar()
+}
+
+jar {
+    from 'LICENSE'
 }
 
 loom {
@@ -72,6 +75,10 @@ tasks.withType(ProcessResources) {
                 'min_minecraft_version': min_minecraft_version,
                 'min_fabric_loader_version': min_fabric_loader_version
         )
+    }
+
+    filesMatching 'lattice.*.mixins.json', {
+        expand 'min_java_version': min_java_version
     }
 }
 

@@ -2,14 +2,15 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.lazurite.lattice.impl.common.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_$min_java_version",
   "mixins": [
-    "PlayerListMixin",
-    "ServerPlayerMixin",
     "chunk.ChunkMapMixin",
+    "chunk.TrackedEntityMixin",
     "core.EntityMixin",
     "core.PlayerMixin",
-    "tracking.TrackedEntityMixin"
+    "core.ServerPlayerMixin",
+    "misc.PlayerListMixin",
+    "misc.ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

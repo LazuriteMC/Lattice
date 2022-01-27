@@ -2,13 +2,28 @@ package dev.lazurite.lattice.api;
 
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * Represents a position and rotation that can load chunks and be viewed.
+ */
 public interface Viewable {
-    Vec3 getViewablePosition();
+    Vec3 getPosition();
 
-    double getViewableX();
-    double getViewableY();
-    double getViewableZ();
+    default double getX() {
+        return this.getPosition().x();
+    }
 
-    float getViewableXRot();
-    float getViewableYRot();
+    default double getY() {
+        return this.getPosition().y();
+    }
+
+    default double getZ() {
+        return this.getPosition().z();
+    }
+
+    float getXRot();
+    float getYRot();
+
+    default boolean shouldRenderPlayer() {
+        return false;
+    }
 }

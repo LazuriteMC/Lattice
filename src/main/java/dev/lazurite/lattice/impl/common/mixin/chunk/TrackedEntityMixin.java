@@ -1,6 +1,7 @@
-package dev.lazurite.lattice.impl.common.mixin.tracking;
+package dev.lazurite.lattice.impl.common.mixin.chunk;
 
-import dev.lazurite.lattice.impl.common.iapi.ILatticePlayer;
+import dev.lazurite.lattice.api.LatticePlayer;
+import dev.lazurite.lattice.api.Viewable;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Final;
@@ -14,6 +15,10 @@ public abstract class TrackedEntityMixin {
 
     @Shadow @Final ServerEntity serverEntity;
 
+    /**
+     * Returns the minimum of the original calculation (which uses the {@link ServerPlayer})
+     * and the following (which uses the {@link ServerPlayer}'s {@link Viewable}).
+     */
     @ModifyVariable(
             method = "updatePlayer",
             at = @At(
@@ -23,12 +28,8 @@ public abstract class TrackedEntityMixin {
             ordinal = 1
     )
     public double updatePlayer_STORE(double e, ServerPlayer serverPlayer) {
-        final var serverEntityPosition = this.serverEntity.sentPos();
-        final var viewablePosition = ((ILatticePlayer) serverPlayer).getViewable().getViewablePosition();
-
-        final var position = viewablePosition.subtract(serverEntityPosition);
-
-        return Math.min(e, position.x() * position.x() + position.z() * position.z());
+        final var position = ((LatticePlayer) serverPlayer).getViewable().getPosition().subtract(this.serverEntity.sentPos());
+        return Math.min(e, position.x * position.x + position.z * position.z);
     }
 
 }

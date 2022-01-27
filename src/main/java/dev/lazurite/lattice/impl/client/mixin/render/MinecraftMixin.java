@@ -9,11 +9,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+/**
+ * Fixes some hard-coded {@link LocalPlayer} positions to use {@link Viewable} instead.
+ */
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
     /**
-     * Uses the {@link Viewable} position instead of the player's position.
+     * Uses the {@link Viewable}'s position instead of the {@link LocalPlayer}'s position.
      */
     @Redirect(
             method = "tick",
@@ -23,11 +26,11 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockX(LocalPlayer player) {
-        return BlockPosUtil.posToBlockCoord(((LatticePlayer) player).getViewable().getViewableX());
+        return BlockPosUtil.posToBlockCoord(((LatticePlayer) player).getViewable().getX());
     }
 
     /**
-     * Uses the {@link Viewable} position instead of the player's position.
+     * Uses the {@link Viewable}'s position instead of the {@link LocalPlayer}'s position.
      */
     @Redirect(
             method = "tick",
@@ -37,11 +40,11 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockY(LocalPlayer player) {
-        return BlockPosUtil.posToBlockCoord(((LatticePlayer) player).getViewable().getViewableY());
+        return BlockPosUtil.posToBlockCoord(((LatticePlayer) player).getViewable().getY());
     }
 
     /**
-     * Uses the {@link Viewable} position instead of the player's position.
+     * Uses the {@link Viewable}'s position instead of the {@link LocalPlayer}'s position.
      */
     @Redirect(
             method = "tick",
@@ -51,7 +54,7 @@ public abstract class MinecraftMixin {
             )
     )
     public final int tick_getBlockZ(LocalPlayer player) {
-        return BlockPosUtil.posToBlockCoord(((LatticePlayer) player).getViewable().getViewableZ());
+        return BlockPosUtil.posToBlockCoord(((LatticePlayer) player).getViewable().getZ());
     }
 
 }

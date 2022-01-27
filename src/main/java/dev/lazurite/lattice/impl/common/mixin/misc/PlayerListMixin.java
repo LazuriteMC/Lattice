@@ -1,6 +1,7 @@
-package dev.lazurite.lattice.impl.common.mixin;
+package dev.lazurite.lattice.impl.common.mixin.misc;
 
 import dev.lazurite.lattice.api.LatticePlayer;
+import dev.lazurite.lattice.api.Viewable;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +21,9 @@ public abstract class PlayerListMixin {
 
     private ServerPlayer serverPlayer;
 
+    /**
+     * Captures the {@link ServerPlayer} instance used in later comparisons. Not thread-safe.
+     */
     @Inject(
             method = "broadcast",
             at = @At(
@@ -34,6 +38,10 @@ public abstract class PlayerListMixin {
         this.serverPlayer = serverPlayer;
     }
 
+    /**
+     * Returns the minimum of the original calculation (which uses the {@link ServerPlayer})
+     * and the following (which uses the {@link ServerPlayer}'s {@link Viewable}).
+     */
     @ModifyVariable(
             method = "broadcast",
             at = @At(
@@ -43,9 +51,13 @@ public abstract class PlayerListMixin {
             ordinal = 4
     )
     public double broadcast_STORE0(double h, @Nullable Player player, double d) {
-        return Math.min(h, d - ((LatticePlayer) this.serverPlayer).getViewable().getViewableX());
+        return Math.min(h, d - ((LatticePlayer) this.serverPlayer).getViewable().getX());
     }
 
+    /**
+     * Returns the minimum of the original calculation (which uses the {@link ServerPlayer})
+     * and the following (which uses the {@link ServerPlayer}'s {@link Viewable}).
+     */
     @ModifyVariable(
             method = "broadcast",
             at = @At(
@@ -55,9 +67,13 @@ public abstract class PlayerListMixin {
             ordinal = 5
     )
     public double broadcast_STORE1(double j, @Nullable Player player, double d, double e) {
-        return Math.min(j, e - ((LatticePlayer) this.serverPlayer).getViewable().getViewableY());
+        return Math.min(j, e - ((LatticePlayer) this.serverPlayer).getViewable().getY());
     }
 
+    /**
+     * Returns the minimum of the original calculation (which uses the {@link ServerPlayer})
+     * and the following (which uses the {@link ServerPlayer}'s {@link Viewable}).
+     */
     @ModifyVariable(
             method = "broadcast",
             at = @At(
@@ -67,7 +83,7 @@ public abstract class PlayerListMixin {
             ordinal = 6
     )
     public double broadcast_STORE2(double k, @Nullable Player player, double d, double e, double f) {
-        return Math.min(k, f - ((LatticePlayer) this.serverPlayer).getViewable().getViewableZ());
+        return Math.min(k, f - ((LatticePlayer) this.serverPlayer).getViewable().getZ());
     }
 
 }

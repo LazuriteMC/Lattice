@@ -1,4 +1,4 @@
-package dev.lazurite.lattice.impl.common.mixin;
+package dev.lazurite.lattice.impl.common.mixin.misc;
 
 import dev.lazurite.lattice.api.LatticePlayer;
 import dev.lazurite.lattice.api.Viewable;
@@ -16,6 +16,9 @@ public abstract class ServerPlayerMixin {
 
     @Shadow public abstract Entity getCamera();
 
+    /**
+     * Cancels {@link ServerPlayer#absMoveTo(double, double, double, float, float)} in {@link ServerPlayer#tick()}.
+     */
     @Redirect(
             method = "tick",
             at = @At(
@@ -25,15 +28,9 @@ public abstract class ServerPlayerMixin {
     )
     public void absMoveTo(ServerPlayer serverPlayer, double d, double e, double f, float g, float h) { }
 
-    @Redirect(
-            method = "setCamera",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerPlayer;teleportTo(DDD)V"
-            )
-    )
-    public void teleportTo(ServerPlayer serverPlayer, double d, double e, double f) { }
-
+    /**
+     * Sets the {@link ServerPlayer}'s {@link Viewable}.
+     */
     @Inject(
             method = "setCamera",
             at = @At(
@@ -44,5 +41,17 @@ public abstract class ServerPlayerMixin {
     public void setCamera(Entity entity, CallbackInfo ci) {
         ((LatticePlayer) this).setViewable((Viewable) this.getCamera());
     }
+
+    /**
+     * Cancels {@link ServerPlayer#teleportTo(double, double, double)} in {@link ServerPlayer#setCamera(Entity)}.
+     */
+    @Redirect(
+            method = "setCamera",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ServerPlayer;teleportTo(DDD)V"
+            )
+    )
+    public void teleportTo(ServerPlayer serverPlayer, double d, double e, double f) { }
 
 }

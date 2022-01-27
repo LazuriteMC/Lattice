@@ -3,11 +3,14 @@ package dev.lazurite.lattice.impl.common.mixin.core;
 import dev.lazurite.lattice.api.Viewable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
+/**
+ * Implements {@link Viewable} onto {@link Entity}.
+ */
 @Mixin(Entity.class)
-public abstract class EntityMixin implements Viewable {
+@Implements(@Interface(iface = Viewable.class, prefix = "view$"))
+public abstract class EntityMixin { // implements Viewable {
 
     @Shadow public abstract double getX();
     @Shadow public abstract double getY();
@@ -15,34 +18,34 @@ public abstract class EntityMixin implements Viewable {
     @Shadow public abstract float getXRot();
     @Shadow public abstract float getYRot();
 
-    @Override
-    public Vec3 getViewablePosition() {
+    @Intrinsic
+    public Vec3 view$getPosition() {
         // this.position() doesn't return a copy
         return new Vec3(this.getX(), this.getY(), this.getZ());
     }
 
-    @Override
-    public double getViewableX() {
+    @Intrinsic
+    public double view$getX() {
         return this.getX();
     }
 
-    @Override
-    public double getViewableY() {
+    @Intrinsic
+    public double view$getY() {
         return this.getY();
     }
 
-    @Override
-    public double getViewableZ() {
+    @Intrinsic
+    public double view$getZ() {
         return this.getZ();
     }
 
-    @Override
-    public float getViewableXRot() {
+    @Intrinsic
+    public float view$getXRot() {
         return this.getXRot();
     }
 
-    @Override
-    public float getViewableYRot() {
+    @Intrinsic
+    public float view$getYRot() {
         return this.getYRot();
     }
 
