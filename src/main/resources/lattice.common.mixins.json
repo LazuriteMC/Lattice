@@ -2,8 +2,9 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.lazurite.lattice.impl.common.mixin",
-  "compatibilityLevel": "JAVA_$min_java_version",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "access.IServerPlayerMixin",
     "chunk.ChunkMapMixin",
     "chunk.TrackedEntityMixin",
     "core.EntityMixin",

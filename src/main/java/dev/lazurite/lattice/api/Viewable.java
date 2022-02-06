@@ -6,7 +6,9 @@ import net.minecraft.world.phys.Vec3;
  * Represents a position and rotation that can load chunks and be viewed.
  */
 public interface Viewable {
-    Vec3 getPosition();
+    default Vec3 getPosition() {
+        throw new AbstractMethodError();
+    }
 
     default double getX() {
         return this.getPosition().x();
@@ -20,8 +22,13 @@ public interface Viewable {
         return this.getPosition().z();
     }
 
-    float getXRot();
-    float getYRot();
+    default float getXRot() {
+        throw new AbstractMethodError();
+    }
+
+    default float getYRot() {
+        throw new AbstractMethodError();
+    }
 
     default boolean shouldRenderPlayer() {
         return false;

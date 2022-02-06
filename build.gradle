@@ -6,12 +6,15 @@ plugins {
 group 'dev.lazurite'
 version lattice_version
 
-// done prior to dependencies so testmodImplementation exists
 sourceSets {
     testmod {
         compileClasspath += sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.runtimeClasspath
     }
+}
+
+configurations {
+    modImplementation.extendsFrom testmodModImplementation
 }
 
 repositories {
@@ -28,11 +31,12 @@ dependencies {
 
     modImplementation "dev.lazurite:toolbox-fabric:$toolbox_version"
 
+    testmodModImplementation fabricApi.module('fabric-command-api-v1', fabric_api_version)
     testmodImplementation sourceSets.main.output
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of min_java_version
+    toolchain.languageVersion = JavaLanguageVersion.of 17
     withSourcesJar()
 }
 
@@ -61,8 +65,6 @@ loom {
 tasks.withType(ProcessResources) {
     inputs.properties(
             'version': project.version,
-
-            'min_java_version': min_java_version,
             'min_minecraft_version': min_minecraft_version,
             'min_fabric_loader_version': min_fabric_loader_version
     )
@@ -70,15 +72,9 @@ tasks.withType(ProcessResources) {
     filesMatching 'fabric.mod.json', {
         expand(
                 'version': project.version,
-
-                'min_java_version': min_java_version,
                 'min_minecraft_version': min_minecraft_version,
                 'min_fabric_loader_version': min_fabric_loader_version
         )
-    }
-
-    filesMatching 'lattice.*.mixins.json', {
-        expand 'min_java_version': min_java_version
     }
 }
 
