@@ -1,3 +1,4 @@
 accessWidener   v1  named
 
-accessible  class   net/minecraft/server/level/ChunkMap$DistanceManager
+accessible  class   net/minecraft/server/level/DistanceManager$FixedPlayerDistanceChunkTracker
+accessible  class   net/minecraft/server/level/DistanceManager$PlayerTicketTracker

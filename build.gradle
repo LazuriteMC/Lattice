@@ -31,7 +31,6 @@ dependencies {
 
     modImplementation "dev.lazurite:toolbox-fabric:$toolbox_version"
 
-    testmodModImplementation fabricApi.module('fabric-command-api-v1', fabric_api_version)
     testmodImplementation sourceSets.main.output
 }
 

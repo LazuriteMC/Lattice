@@ -1,8 +1,8 @@
 package dev.lazurite.lattice.mixin.common;
 
-import dev.lazurite.lattice.api.LatticePlayer;
+import dev.lazurite.lattice.api.player.LatticeServerPlayer;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.commands.SpectateCommand;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -17,6 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SpectateCommand.class)
 public abstract class SpectateCommandMixin {
 
+    // commands to points/viewPoints?
+
     @Inject(
             method = "spectate",
             at = @At(
@@ -27,11 +29,12 @@ public abstract class SpectateCommandMixin {
             cancellable = true
     )
     private static void spectate_create(CommandSourceStack commandSourceStack, Entity entity, ServerPlayer serverPlayer, CallbackInfoReturnable<Integer> cir) {
-        ((LatticePlayer) serverPlayer).setCameraWithoutViewable(entity);
+        ((LatticeServerPlayer) serverPlayer).setCameraWithoutViewPoint(entity);
+
         if (entity != null) {
-            commandSourceStack.sendSuccess(new TranslatableComponent("commands.spectate.success.started", new Object[]{entity.getDisplayName()}), false);
+            commandSourceStack.sendSuccess(Component.translatable("commands.spectate.success.started", entity.getDisplayName()), false);
         } else {
-            commandSourceStack.sendSuccess(new TranslatableComponent("commands.spectate.success.stopped"), false);
+            commandSourceStack.sendSuccess(Component.translatable("commands.spectate.success.stopped"), false);
         }
 
         cir.setReturnValue(1);

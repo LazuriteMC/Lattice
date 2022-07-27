@@ -7,7 +7,7 @@
 
 ## What is Lattice?
 
-Lattice is a library mod that allows for chunk generation, loading, and rendering around the player's camera entity.
+Lattice is dev library mod that allows for chunk generation, loading, and rendering around Viewables.
 
 ## How do I use Lattice?
 

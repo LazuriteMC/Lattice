@@ -7,6 +7,10 @@
     {
       "config": "lattice-testmod.common.mixins.json",
       "environment": "*"
+    },
+    {
+      "config": "toolbox.mixins.json",
+      "environment": "*"
     }
   ],
   "depends": {

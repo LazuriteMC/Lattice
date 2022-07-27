@@ -1,14 +1,13 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "dev.lazurite.lattice.impl.client.mixin",
   "compatibilityLevel": "JAVA_17",
+  "required": true,
+  "package": "dev.lazurite.lattice.impl.client.mixin",
   "client": [
-    "chunk.StorageMixin",
-    "core.LocalPlayerMixin",
-    "network.ClientPacketListenerMixin",
-    "render.LevelRendererMixin",
-    "render.MinecraftMixin"
+    "core.player.LocalPlayerMixin",
+    "feature.render.LevelRendererMixin",
+    "fix.chunk.StorageMixin",
+    "fix.render.LevelRendererMixin",
+    "fix.render.MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1
