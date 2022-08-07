@@ -3,6 +3,10 @@
   "id": "lattice",
   "version": "$version",
   "environment": "*",
+  "entrypoints": {
+    "client": [ "dev.lazurite.lattice.impl.client.LatticeClient" ],
+    "modmenu": [ "dev.lazurite.lattice.impl.LatticeCommon" ]
+  },
   "mixins": [
     {
       "config": "lattice.common.mixins.json",

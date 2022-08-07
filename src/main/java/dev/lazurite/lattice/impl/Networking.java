@@ -8,7 +8,7 @@ import net.minecraft.world.entity.Entity;
 
 public final class Networking {
 
-    public static final ResourceLocation SET_VIEWPOINT_PACKET_IDENTIFIER = new ResourceLocation("lattice", "set_viewable");
+    public static final ResourceLocation SET_VIEWPOINT_PACKET_IDENTIFIER = new ResourceLocation("lattice", "set_viewpoint");
 
     public static void sendSetViewPointPacket(final ServerPlayer serverPlayer, final ViewPoint viewPoint) {
         ServerNetworking.send(serverPlayer, Networking.SET_VIEWPOINT_PACKET_IDENTIFIER, friendlyByteBuf -> {
