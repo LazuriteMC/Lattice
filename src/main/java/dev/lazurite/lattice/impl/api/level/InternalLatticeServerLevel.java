@@ -9,4 +9,5 @@ public interface InternalLatticeServerLevel extends LatticeServerLevel {
     void unregisterPlayer(final ServerPlayer serverPlayer);
 
     ChunkPosSupplierWrapper getChunkPosSupplierWrapper(final ServerPlayer serverPlayer);
+    ChunkPosSupplierWrapper getViewpointChunkPosSupplierWrapper(final ServerPlayer serverPlayer);
 }

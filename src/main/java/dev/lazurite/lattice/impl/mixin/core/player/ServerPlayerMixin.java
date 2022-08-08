@@ -14,18 +14,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements InternalLatticeServerPlayer {
-
-    @Unique
-    private ChunkPos lastLastChunkPos;
 
     @Shadow public abstract ServerLevel getLevel();
     @Shadow public abstract Entity getCamera();
@@ -69,13 +64,8 @@ public abstract class ServerPlayerMixin extends Player implements InternalLattic
     }
 
     @Override
-    public void setLastLastChunkPos(final ChunkPos chunkPos) {
-        this.lastLastChunkPos = chunkPos;
-    }
-
-    @Override
-    public ChunkPos getLastLastChunkPos() {
-        return this.lastLastChunkPos;
+    public ChunkPosSupplierWrapper getViewpointChunkPosSupplierWrapper() {
+        return ((InternalLatticeServerLevel) this.getLevel()).getViewpointChunkPosSupplierWrapper((ServerPlayer) (Object) this);
     }
 
 }

@@ -15,6 +15,9 @@ public interface ChunkPosSupplierWrapper extends ChunkPosSupplier {
     void setLastLastChunkPos(final ChunkPos chunkPos);
     ChunkPos getLastLastChunkPos();
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isInSameChunk(final ServerPlayer serverPlayer);
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean wasInSameChunk(final ServerPlayer serverPlayer, final boolean useLastLast);
 }

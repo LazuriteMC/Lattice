@@ -33,7 +33,8 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
     public void register(final ChunkPosSupplier chunkPosSupplier) {
         if (chunkPosSupplier instanceof Player) return;
 
-        this.chunkPosSuppliers.addNode(new ChunkPosSupplierWrapperImpl(chunkPosSupplier, (ServerLevel) (Object) this));
+        final var chunkPosSupplierWrapper = new ChunkPosSupplierWrapperImpl(chunkPosSupplier, (ServerLevel) (Object) this);
+        this.chunkPosSuppliers.addNode(chunkPosSupplierWrapper);
     }
 
     @Override
@@ -44,10 +45,8 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
 
         if (chunkPosSupplier instanceof ViewPoint) {
             // update any viewing ServerPlayer's edge to be self-referential
-            this.chunkPosSuppliers.predecessors(chunkPosSupplierWrapper).forEach(serverPlayer -> {
-//                final var chunkPosSupplierWrapper = this.getChunkPosSupplierWrapper((ServerPlayer) serverPlayer);
-//                this.chunkPosSuppliers.putEdge(chunkPosSupplierWrapper, chunkPosSupplierWrapper);
-                this.chunkPosSuppliers.putEdge(serverPlayer, serverPlayer);
+            this.chunkPosSuppliers.predecessors(chunkPosSupplierWrapper).forEach(_chunkPosSupplierWrapper -> {
+                this.chunkPosSuppliers.putEdge(_chunkPosSupplierWrapper, _chunkPosSupplierWrapper);
             });
         }
 
@@ -63,10 +62,13 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
     public void bind(final ServerPlayer serverPlayer, final ViewPoint viewPoint) {
         this.unbind(serverPlayer);
 
+        final var chunkPosSupplierWrapper = new ChunkPosSupplierWrapperImpl(viewPoint, (ServerLevel) (Object) this);
         this.chunkPosSuppliers.putEdge(
                 this.getChunkPosSupplierWrapper(serverPlayer),
-                new ChunkPosSupplierWrapperImpl(viewPoint, (ServerLevel) (Object) this)
+                chunkPosSupplierWrapper
         );
+
+        this.chunkPosSuppliers.removeEdge(this.getChunkPosSupplierWrapper(serverPlayer), this.getChunkPosSupplierWrapper(serverPlayer));
     }
 
     @Override
@@ -74,11 +76,12 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
         final var chunkPosSupplierWrapper = new ChunkPosSupplierWrapperImpl((ChunkPosSupplier) serverPlayer, (ServerLevel) (Object) this);
 
         this.chunkPosSuppliers.successors(chunkPosSupplierWrapper).stream()
-                .filter(viewPoint -> !(viewPoint instanceof ServerPlayer)) // remove ServerPlayers
-                .filter(viewPoint -> this.chunkPosSuppliers.inDegree(viewPoint) == 0) // get ViewPoints with no viewers
-                .map(viewPoint -> (ViewPoint) viewPoint) // cast to ViewPoint
+                .map(_chunkPosSupplierWrapper -> (ChunkPosSupplierWrapper) _chunkPosSupplierWrapper) // cast to ChunkPosSupplierWrapper
+                .filter(_chunkPosSupplierWrapper -> !(_chunkPosSupplierWrapper.getChunkPosSupplier() instanceof ServerPlayer)) // remove ServerPlayers
+                .filter(_chunkPosSupplierWrapper -> this.chunkPosSuppliers.inDegree(_chunkPosSupplierWrapper) == 0) // get ViewPoints with no viewers
+                .map(_chunkPosSupplierWrapper -> (ViewPoint) _chunkPosSupplierWrapper.getChunkPosSupplier()) // cast to ViewPoint
                 .filter(ViewPoint::unregistersWithNoViewers) // get ViewPoints to be unregistered
-                .forEach(this.chunkPosSuppliers::removeNode); // remove them (also removes edges)
+                .forEach(this.chunkPosSuppliers::removeNode); // remove them
 
         this.chunkPosSuppliers.putEdge(chunkPosSupplierWrapper, chunkPosSupplierWrapper);
     }
@@ -87,9 +90,9 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
     public void unbindAll(final ViewPoint viewPoint) {
         final var chunkPosSupplierWrapper = new ChunkPosSupplierWrapperImpl(viewPoint, (ServerLevel) (Object) this);
 
-        this.chunkPosSuppliers.predecessors(chunkPosSupplierWrapper).forEach(serverPlayer -> {
-            this.chunkPosSuppliers.removeEdge(serverPlayer, chunkPosSupplierWrapper);
-            this.chunkPosSuppliers.putEdge(serverPlayer, serverPlayer);
+        this.chunkPosSuppliers.predecessors(chunkPosSupplierWrapper).forEach(_chunkPosSupplierWrapper -> {
+            this.chunkPosSuppliers.removeEdge(_chunkPosSupplierWrapper, chunkPosSupplierWrapper);
+            this.chunkPosSuppliers.putEdge(_chunkPosSupplierWrapper, _chunkPosSupplierWrapper);
         });
 
         if (viewPoint.unregistersWithNoViewers()) {
@@ -108,7 +111,8 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
     public Set<ServerPlayer> getBoundPlayers(final ViewPoint viewPoint) {
         final var chunkPosSupplierWrapper = new ChunkPosSupplierWrapperImpl(viewPoint, (ServerLevel) (Object) this);
         return this.chunkPosSuppliers.predecessors(chunkPosSupplierWrapper).stream()
-                .map(_viewPoint -> (ServerPlayer) _viewPoint) // cast to ServerPlayer
+                .map(_chunkPosSupplierWrapper -> (ChunkPosSupplierWrapper) _chunkPosSupplierWrapper) // cast to ChunkPosSupplierWrapper
+                .map(_chunkPosSupplierWrapper -> (ServerPlayer) _chunkPosSupplierWrapper.getChunkPosSupplier()) // cast to ServerPlayer
                 .collect(Collectors.toSet()); // collect to Set
     }
 
@@ -116,9 +120,10 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public Set<ServerPlayer> getAllBoundPlayers() {
         return this.chunkPosSuppliers.nodes().stream()
-                .filter(chunkPosSupplierWrapper -> ((ChunkPosSupplierWrapper) chunkPosSupplierWrapper).getChunkPosSupplier() instanceof ServerPlayer) // get ServerPlayers
-                .filter(serverPlayer -> !this.chunkPosSuppliers.successors(serverPlayer).stream().findFirst().get().equals(serverPlayer)) // remove self-referential edges
-                .map(chunkPosSupplierWrapper -> (ServerPlayer) ((ChunkPosSupplierWrapper) chunkPosSupplierWrapper).getChunkPosSupplier()) // cast to ServerPlayer
+                .map(chunkPosSupplierWrapper -> (ChunkPosSupplierWrapper) chunkPosSupplierWrapper) // cast to ChunkPosSupplierWrapper
+                .filter(chunkPosSupplierWrapper -> chunkPosSupplierWrapper.getChunkPosSupplier() instanceof ServerPlayer) // get ServerPlayers
+                .filter(chunkPosSupplierWrapper -> !this.chunkPosSuppliers.successors(chunkPosSupplierWrapper).stream().findFirst().get().equals(chunkPosSupplierWrapper)) // remove self-referential edges
+                .map(chunkPosSupplierWrapper -> (ServerPlayer) chunkPosSupplierWrapper.getChunkPosSupplier()) // cast to ServerPlayer
                 .collect(Collectors.toSet()); // collect to Set
     }
 
@@ -131,13 +136,24 @@ public abstract class ServerLevelMixin implements InternalLatticeServerLevel {
     @Override
     public void unregisterPlayer(final ServerPlayer serverPlayer) {
         this.unbind(serverPlayer);
-        this.chunkPosSuppliers.removeNode(new ChunkPosSupplierWrapperImpl((ChunkPosSupplier) serverPlayer, (ServerLevel) (Object) this));
+
+        final var chunkPosSupplierWrapper = new ChunkPosSupplierWrapperImpl((ChunkPosSupplier) serverPlayer, (ServerLevel) (Object) this);
+        this.chunkPosSuppliers.removeNode(chunkPosSupplierWrapper);
     }
 
     @Override
     @SuppressWarnings({"OptionalGetWithoutIsPresent", "EqualsBetweenInconvertibleTypes"})
     public ChunkPosSupplierWrapper getChunkPosSupplierWrapper(final ServerPlayer serverPlayer) {
-        return (ChunkPosSupplierWrapper) this.chunkPosSuppliers.nodes().stream().filter(chunkPosSupplier -> chunkPosSupplier.equals(serverPlayer)).findFirst().get();
+        return this.chunkPosSuppliers.nodes().stream()
+                .map(chunkPosSupplierWrapper -> (ChunkPosSupplierWrapper) chunkPosSupplierWrapper) // map to ChunkPosSupplierWrapper
+                .filter(chunkPosSupplierWrapper -> chunkPosSupplierWrapper.getChunkPosSupplier().equals(serverPlayer)).findFirst().get();
+    }
+
+    @Override
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public ChunkPosSupplierWrapper getViewpointChunkPosSupplierWrapper(final ServerPlayer serverPlayer) {
+        final var chunkPosSupplierWrapper = this.getChunkPosSupplierWrapper(serverPlayer);
+        return (ChunkPosSupplierWrapper) this.chunkPosSuppliers.successors(chunkPosSupplierWrapper).stream().findFirst().get();
     }
 
 }

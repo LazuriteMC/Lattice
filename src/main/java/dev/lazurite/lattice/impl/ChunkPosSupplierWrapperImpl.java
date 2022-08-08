@@ -14,12 +14,17 @@ public final class ChunkPosSupplierWrapperImpl implements ChunkPosSupplierWrappe
     private final ChunkPosSupplier chunkPosSupplier;
     private final ServerLevel serverLevel;
 
-    private ChunkPos lastChunkPos;
-    private ChunkPos lastLastChunkPos;
+    private ChunkPos lastChunkPos = ChunkPos.ZERO;
+    private ChunkPos lastLastChunkPos = ChunkPos.ZERO;
 
     public ChunkPosSupplierWrapperImpl(final ChunkPosSupplier chunkPosSupplier, final ServerLevel serverLevel) {
         this.chunkPosSupplier = chunkPosSupplier;
         this.serverLevel = serverLevel;
+
+        if (chunkPosSupplier instanceof final ServerPlayer serverPlayer) {
+            final var lastSectionPos = serverPlayer.getLastSectionPos();
+            this.lastChunkPos = new ChunkPos(lastSectionPos.x(), lastSectionPos.z());
+        }
     }
 
     @Override
@@ -71,14 +76,7 @@ public final class ChunkPosSupplierWrapperImpl implements ChunkPosSupplierWrappe
     @Override
     public boolean wasInSameChunk(final ServerPlayer serverPlayer, final boolean useLastLast) {
         if (useLastLast) {
-            final var lastLastChunkPos = this.getLastLastChunkPos();
-            final var serverPlayerLastLastChunkPos = ((InternalLatticeServerPlayer) serverPlayer).getLastLastChunkPos();
-
-            if (lastLastChunkPos == null || serverPlayerLastLastChunkPos == null) {
-                return true;
-            }
-
-            return lastLastChunkPos.equals(serverPlayerLastLastChunkPos);
+            return this.getLastLastChunkPos().equals(((InternalLatticeServerPlayer) serverPlayer).getChunkPosSupplierWrapper().getLastLastChunkPos());
         }
 
         return this.getLastChunkPos().equals(serverPlayer.getLastSectionPos().chunk());
@@ -91,12 +89,12 @@ public final class ChunkPosSupplierWrapperImpl implements ChunkPosSupplierWrappe
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof ChunkPosSupplier chunkPosSupplier) {
-            if (chunkPosSupplier instanceof ChunkPosSupplierWrapper chunkPosSupplierWrapper) {
+        if (obj instanceof final ChunkPosSupplier _chunkPosSupplier) {
+            if (_chunkPosSupplier instanceof final ChunkPosSupplierWrapper chunkPosSupplierWrapper) {
                 return this.getChunkPosSupplier().equals(chunkPosSupplierWrapper.getChunkPosSupplier());
             }
 
-            return this.getChunkPosSupplier().equals(chunkPosSupplier);
+            return this.getChunkPosSupplier().equals(_chunkPosSupplier);
         }
 
         return false;
