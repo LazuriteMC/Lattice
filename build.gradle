@@ -44,7 +44,7 @@ jar {
 }
 
 loom {
-    accessWidenerPath = file 'src/main/resources/lattice.accessWidener'
+    accessWidenerPath = file 'src/main/resources/lattice.accesswidener'
 
     runs {
         testmodClient {
@@ -78,14 +78,16 @@ tasks.withType(ProcessResources) {
 }
 
 publishing {
-    repositories {
-        maven {
-            name 'Lazurite'
-            url 'https://lazurite.dev/releases'
+    if (hasProperty('publish.lazurite.alias') && hasProperty('publish.lazurite.secret')) {
+        repositories {
+            maven {
+                name 'Lazurite'
+                url 'https://lazurite.dev/releases'
 
-            credentials {
-                username property('publish.lazurite.alias')
-                password property('publish.lazurite.secret')
+                credentials {
+                    username property('publish.lazurite.alias')
+                    password property('publish.lazurite.secret')
+                }
             }
         }
     }
