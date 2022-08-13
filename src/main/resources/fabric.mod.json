@@ -5,7 +5,7 @@
   "environment": "*",
   "entrypoints": {
     "client": [ "dev.lazurite.lattice.impl.client.LatticeClient" ],
-    "modmenu": [ "dev.lazurite.lattice.impl.LatticeCommon" ]
+    "main": [ "dev.lazurite.lattice.impl.LatticeCommon" ]
   },
   "mixins": [
     {
