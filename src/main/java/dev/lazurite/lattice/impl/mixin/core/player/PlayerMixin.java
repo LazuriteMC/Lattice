@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class PlayerMixin implements LatticePlayer {
 
     @Override
-    @SuppressWarnings("ObjectEquality")
+    @SuppressWarnings("EqualsBetweenInconvertibleTypes")
     public boolean isViewPointSelf() {
         return this.getViewPoint() == this;
     }

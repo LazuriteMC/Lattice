@@ -6,17 +6,6 @@ plugins {
 group 'dev.lazurite'
 version lattice_version
 
-sourceSets {
-    testmod {
-        compileClasspath += sourceSets.main.compileClasspath
-        runtimeClasspath += sourceSets.main.runtimeClasspath
-    }
-}
-
-configurations {
-    modImplementation.extendsFrom testmodModImplementation
-}
-
 repositories {
     maven {
         name 'Lazurite'
@@ -30,8 +19,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
 
     modApi "dev.lazurite:toolbox-fabric:$toolbox_version"
-
-    testmodImplementation sourceSets.main.output
 }
 
 java {
@@ -45,35 +32,13 @@ jar {
 
 loom {
     accessWidenerPath = file 'src/main/resources/lattice.accesswidener'
-
-    runs {
-        testmodClient {
-            client()
-            name "Testmod Client"
-            source sourceSets.testmod
-        }
-
-        testmodServer {
-            server()
-            name "Testmod Server"
-            source sourceSets.testmod
-        }
-    }
 }
 
 tasks.withType(ProcessResources) {
-    inputs.properties(
-            'version': project.version,
-            'min_minecraft_version': min_minecraft_version,
-            'min_fabric_loader_version': min_fabric_loader_version
-    )
+    inputs.properties 'version': project.version
 
     filesMatching 'fabric.mod.json', {
-        expand(
-                'version': project.version,
-                'min_minecraft_version': min_minecraft_version,
-                'min_fabric_loader_version': min_fabric_loader_version
-        )
+        expand 'version': project.version
     }
 }
 

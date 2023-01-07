@@ -18,11 +18,6 @@
     }
   ],
   "accessWidener": "lattice.accesswidener",
-  "depends": {
-    "java": "17",
-    "minecraft": "$min_minecraft_version",
-    "fabricloader": "$min_fabric_loader_version"
-  },
   "name": "Lattice",
   "description": "A library mod that allows for chunk generation, loading, and rendering around Viewables.",
   "authors": [ "The Lazurite Team" ],

@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,13 +23,13 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements InternalLatticeServerPlayer {
 
-    @Shadow public abstract ServerLevel getLevel();
+    @Shadow public abstract @NotNull ServerLevel getLevel();
     @Shadow public abstract Entity getCamera();
     @Shadow private @Nullable Entity camera;
     @Shadow public ServerGamePacketListenerImpl connection;
 
     public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, blockPos, f, gameProfile, null);
+        super(level, blockPos, f, gameProfile);
     }
 
     @Override
